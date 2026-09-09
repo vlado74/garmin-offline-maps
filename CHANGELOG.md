@@ -15,11 +15,16 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   starts where the streets do. The widest view is closer in than before, and
   everything you can reach has a street network on it.
 
-- **The app covers the Venu family.** A street-level city map is compiled into
-  every watch the app supports, and it is far bigger than the demo map, so the
-  store's size limit decided the rest: Venu 2, 2S, 2 Plus, 3, 3S, Venu (41 and
-  45 mm) and Venu Sq 2. Forerunner and vivoactive models are no longer covered
-  by this listing.
+### Fixed
+
+- **A pack could balloon far past the area you asked for.** Overpass returns a
+  way's whole geometry once any single point of it falls inside the query box,
+  so a river or a long road that only grazed the requested area arrived with
+  the rest of its length attached, and both the reported bounds and the tile
+  budget were spent on data far outside where you asked -- sometimes past the
+  resource-id ceiling, leaving the actual requested area thin or missing.
+  `make pack` now clips everything to the requested `--bbox`/`--city` region
+  before tiling. Only shows up on your next repack.
 
 ## [0.5.2] - 2026-08-09
 

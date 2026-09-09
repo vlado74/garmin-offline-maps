@@ -159,6 +159,9 @@ def main(argv=None) -> int:
         include_buildings=args.buildings,
         resource_budget=args.resource_budget,
         name=args.name,
+        # None for --input: a local extract has no query box of its own, so
+        # there is nothing to clip to and the file's own extent is the pack.
+        region=args.bbox,
     )
 
     print("packing tiles ...", file=sys.stderr)

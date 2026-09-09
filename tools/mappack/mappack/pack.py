@@ -40,7 +40,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from . import geom
 from .classify import GEOM_POLYGON, L_BUILDING, L_MINOR, L_PATH, Klass, classify
@@ -135,6 +135,17 @@ class PackOptions:
     #: pack passes something much smaller, because every block has to base64
     #: under Application.Storage's 8 KB per-value ceiling. See citypack.py.
     block_target_bytes: int = 0
+    #: west, south, east, north in degrees -- the box the caller actually
+    #: asked for. Overpass returns a way's *entire* geometry once any one of
+    #: its nodes falls inside the query box, so an unrelated way that merely
+    #: passes through the corner of a small pack -- a river or a coastline
+    #: that runs the length of a country -- arrives with the rest of its length
+    #: attached. Left unclipped, `clamp_bbox` reports that whole extent as the
+    #: pack's bounds and tiles get built all the way out to it, which is how a
+    #: 10 km pack request ends up spending its resource budget on tiles 30 km
+    #: from where anyone asked. `None` (the `--input` path, with no query box
+    #: of its own) skips this and packs the geometry as given.
+    region: Optional[geom.BBox] = None
 
 
 @dataclass
@@ -153,7 +164,22 @@ class PackResult:
 # ---------------------------------------------------------------------------
 
 
+def _region_clip_box(region: geom.BBox, ref_zoom: int):
+    """`region` in degrees to a world-pixel clip rect at `ref_zoom`, with a
+    one-tile margin so edge geometry is not cut exactly at the requested
+    edge -- the per-tile clip in `build_tiles` still trims it precisely."""
+    west, south, east, north = region
+    margin = geom.TILE_SIZE
+    xmin = geom.lon_to_world_x(west, ref_zoom) - margin
+    xmax = geom.lon_to_world_x(east, ref_zoom) + margin
+    # y grows downward, so north (the top) is the smaller world-pixel value.
+    ymin = geom.lat_to_world_y(north, ref_zoom) - margin
+    ymax = geom.lat_to_world_y(south, ref_zoom) + margin
+    return xmin, ymin, xmax, ymax
+
+
 def build_features(ways, options: PackOptions, ref_zoom: int) -> List[Feature]:
+    clip = _region_clip_box(options.region, ref_zoom) if options.region else None
     features: List[Feature] = []
     for way in ways:
         klass = classify(way.tags, options.include_buildings)
@@ -165,12 +191,25 @@ def build_features(ways, options: PackOptions, ref_zoom: int) -> List[Feature]:
                 continue
             if coords[0] != coords[-1]:
                 coords = coords + [coords[0]]
-            size = geom.polygon_area(coords)
-        else:
-            if len(coords) < 2:
-                continue
-            size = geom.polyline_length(coords)
-        features.append(Feature(klass=klass, coords=coords, length=size))
+            if clip is not None:
+                coords = geom.clip_polygon(coords, *clip)
+                if len(coords) < 3:
+                    continue
+            features.append(Feature(klass=klass, coords=coords,
+                                     length=geom.polygon_area(coords)))
+            continue
+        if len(coords) < 2:
+            continue
+        if clip is not None:
+            # A way that leaves and re-enters the region -- a road skirting
+            # its edge -- becomes more than one feature; each piece is a
+            # separate line once the part outside is gone.
+            for part in geom.clip_polyline(coords, *clip):
+                features.append(Feature(klass=klass, coords=part,
+                                         length=geom.polyline_length(part)))
+            continue
+        features.append(Feature(klass=klass, coords=coords,
+                                 length=geom.polyline_length(coords)))
     return features
 
 

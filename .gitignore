@@ -30,9 +30,12 @@ preview*.png
 *.osm.cache
 tools/mappack/*.osm
 
-# The demo pack IS committed so the repo builds out of the box. If you generate
-# a large pack for your own area, uncomment the next line so it stays local.
-# mapdata/active/
+# The demo pack IS committed so the repo builds out of the box. A personal
+# pack overwrites mapdata/active/ on disk (make build reads nothing else), so
+# this only keeps the new block files it adds out of `git status`/`git add -A`;
+# the demo files already tracked still show as modified until `make demo`
+# restores them -- see docs/PACKER.md.
+mapdata/active/
 .DS_Store
 
 # Personal packs built alongside the committed demo
