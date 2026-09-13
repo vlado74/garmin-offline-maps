@@ -82,13 +82,14 @@ ZOOMS       ?= 12,14,16
 SIMPLIFY    ?= 1.0
 EXTRA       ?=
 
-.PHONY: help doctor key pack demo build watch sim serve city catalogue package test lint regression clean distclean
+.PHONY: help doctor key pack demo raster-pack build watch sim serve city catalogue package test lint regression clean distclean
 
 help:
 	@echo "Targets:"
 	@echo "  make key         generate a developer signing key (once)"
 	@echo "  make pack        build a map pack   (BBOX=w,s,e,n  or  INPUT=file.osm)"
 	@echo "  make demo        rebuild the bundled synthetic demo pack"
+	@echo "  make raster-pack build the personal offline raster pack"
 	@echo "  make build       compile for DEVICE=$(DEVICE)"
 	@echo "  make sim         launch the simulator and side-load the app"
 	@echo "  make serve       drive the map in a browser (no SDK needed)"
@@ -169,6 +170,18 @@ demo:
 		--zooms 12,14,16 \
 		--out "$(CURDIR)/mapdata/active" \
 		--index "$(CURDIR)/source/generated/MapIndex.mc"
+
+RASTER_BBOX ?= 12.4644720888,41.8094001206,12.5247529112,41.8543156794
+RASTER_ZOOMS ?= 13,15
+RASTER_FONT ?= /System/Library/Fonts/Supplemental/Arial.ttf
+RASTER_BOLD_FONT ?= /System/Library/Fonts/Supplemental/Arial Bold.ttf
+
+raster-pack:
+	cd $(PACK_DIR) && $(PYTHON) -m mappack.raster_cli \
+		--bbox "$(RASTER_BBOX)" --zooms "$(RASTER_ZOOMS)" \
+		--font "$(RASTER_FONT)" --bold-font "$(RASTER_BOLD_FONT)" \
+		--out "$(CURDIR)/mapdata/raster" \
+		--index "$(CURDIR)/source/generated/RasterMapIndex.mc"
 
 # --- build -----------------------------------------------------------------
 

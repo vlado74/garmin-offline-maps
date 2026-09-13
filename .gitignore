@@ -43,6 +43,8 @@ mapdata/active/
 
 # Personal packs built alongside the committed demo
 mapdata/berlin/
+mapdata/raster/
+!mapdata/raster-demo/
 
 # Local city catalogue for `make catalogue`
 .catalogue/
