@@ -21,6 +21,7 @@ from mappack.raster import (  # noqa: E402
     place_labels,
     visible_cells,
 )
+from mappack import raster  # noqa: E402
 
 
 ROME = (12.4644720888, 41.8094001206, 12.5247529112, 41.8543156794)
@@ -110,6 +111,40 @@ class TestLabelPlacement(unittest.TestCase):
         )
 
         self.assertEqual([label.text for label in placed], ["Via Principale"])
+
+    def test_text_bbox_is_actually_centered_on_the_anchor(self):
+        font = ImageFont.load_default()
+        fonts = RasterFonts(font, font)
+
+        placed = place_labels(
+            [LabelCandidate("Centro", 10, (60.0, 60.0), False)],
+            (120, 120),
+            fonts,
+        )[0]
+        raw = font.getbbox(placed.text, stroke_width=2)
+        actual = (
+            placed.position[0] + raw[0],
+            placed.position[1] + raw[1],
+            placed.position[0] + raw[2],
+            placed.position[1] + raw[3],
+        )
+
+        self.assertAlmostEqual((actual[0] + actual[2]) / 2.0, 60.0)
+        self.assertAlmostEqual((actual[1] + actual[3]) / 2.0, 60.0)
+
+    def test_visual_centre_of_a_concave_area_stays_inside(self):
+        polygon = [
+            (0.0, 0.0),
+            (100.0, 0.0),
+            (100.0, 20.0),
+            (20.0, 20.0),
+            (20.0, 100.0),
+            (0.0, 100.0),
+        ]
+
+        centre = raster._visual_center(polygon)
+
+        self.assertTrue(raster._point_in_polygon(centre, polygon))
 
 
 if __name__ == "__main__":

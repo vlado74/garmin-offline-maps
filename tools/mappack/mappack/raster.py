@@ -78,6 +78,7 @@ class PlacedLabel:
     priority: int
     anchor: geom.Point
     bold: bool
+    position: geom.Point
     bounds: BBox
 
 
@@ -171,6 +172,15 @@ def build_scene(
             dict(way.tags),
         )
         min_x, min_y, max_x, max_y = geom.bbox(points)
+        if kind.geom == classify.GEOM_LINE:
+            stroke_width = _line_width(kind.layer)
+            if kind.layer == classify.L_MINOR:
+                stroke_width += 2
+            padding = stroke_width / 2.0
+            min_x -= padding
+            min_y -= padding
+            max_x += padding
+            max_y += padding
         first_col = math.floor(min_x / tile_size)
         last_col = math.floor(max_x / tile_size)
         first_row = math.floor(min_y / tile_size)
@@ -236,11 +246,9 @@ def place_labels(
     for candidate in ordered:
         font = fonts.bold if candidate.bold else fonts.regular
         left, top, right, bottom = font.getbbox(candidate.text, stroke_width=2)
-        text_width = right - left
-        text_height = bottom - top
-        x = candidate.anchor[0] - text_width / 2.0
-        y = candidate.anchor[1] - text_height / 2.0
-        bounds = (x - 2, y - 2, x + text_width + 2, y + text_height + 2)
+        x = candidate.anchor[0] - (left + right) / 2.0
+        y = candidate.anchor[1] - (top + bottom) / 2.0
+        bounds = (x + left, y + top, x + right, y + bottom)
         if bounds[0] < 0 or bounds[1] < 0 or bounds[2] > width or bounds[3] > height:
             continue
         if any(_boxes_intersect(bounds, item.bounds) for item in placed):
@@ -251,6 +259,7 @@ def place_labels(
                 candidate.priority,
                 candidate.anchor,
                 candidate.bold,
+                (x, y),
                 bounds,
             )
         )
@@ -303,7 +312,9 @@ def _label_priority(feature: SceneFeature) -> Optional[Tuple[int, bool]]:
         return 300, True
     if highway in ("residential", "living_street", "unclassified"):
         return 250, False
-    if feature.layer == classify.L_GREEN_AREA:
+    if highway is not None:
+        return 225, False
+    if feature.tags.get("leisure") in ("park", "garden", "nature_reserve"):
         return 200, False
     if feature.layer in (classify.L_WATER_AREA, classify.L_WATERWAY):
         return 150, False
@@ -326,6 +337,66 @@ def _line_anchor(
     return anchor
 
 
+def _point_on_segment(point: geom.Point, start: geom.Point, end: geom.Point) -> bool:
+    px, py = point
+    ax, ay = start
+    bx, by = end
+    cross = (px - ax) * (by - ay) - (py - ay) * (bx - ax)
+    if abs(cross) > 1e-7:
+        return False
+    return (
+        min(ax, bx) - 1e-7 <= px <= max(ax, bx) + 1e-7
+        and min(ay, by) - 1e-7 <= py <= max(ay, by) + 1e-7
+    )
+
+
+def _point_in_polygon(point: geom.Point, polygon: Sequence[geom.Point]) -> bool:
+    """Return whether a point lies inside or on the boundary of a polygon."""
+    inside = False
+    px, py = point
+    for start, end in zip(polygon, polygon[1:] + polygon[:1]):
+        if _point_on_segment(point, start, end):
+            return True
+        ax, ay = start
+        bx, by = end
+        if (ay > py) != (by > py):
+            crossing_x = (bx - ax) * (py - ay) / (by - ay) + ax
+            if px < crossing_x:
+                inside = not inside
+    return inside
+
+
+def _distance_to_edges(point: geom.Point, polygon: Sequence[geom.Point]) -> float:
+    px, py = point
+    shortest = float("inf")
+    for start, end in zip(polygon, polygon[1:] + polygon[:1]):
+        ax, ay = start
+        bx, by = end
+        dx = bx - ax
+        dy = by - ay
+        if dx == 0 and dy == 0:
+            distance = math.hypot(px - ax, py - ay)
+        else:
+            t = max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+            distance = math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+        shortest = min(shortest, distance)
+    return shortest
+
+
+def _visual_center(polygon: Sequence[geom.Point]) -> geom.Point:
+    """Approximate a pole of inaccessibility that remains inside the area."""
+    min_x, min_y, max_x, max_y = geom.bbox(polygon)
+    candidates = [polygon[0], ((min_x + max_x) / 2.0, (min_y + max_y) / 2.0)]
+    steps = 16
+    for row in range(steps):
+        y = min_y + (row + 0.5) * (max_y - min_y) / steps
+        for col in range(steps):
+            x = min_x + (col + 0.5) * (max_x - min_x) / steps
+            candidates.append((x, y))
+    inside = [point for point in candidates if _point_in_polygon(point, polygon)]
+    return max(inside, key=lambda point: _distance_to_edges(point, polygon))
+
+
 def _label_candidates(
     features: Sequence[SceneFeature], left: float, top: float, size: int
 ) -> List[LabelCandidate]:
@@ -341,8 +412,7 @@ def _label_candidates(
             visible = geom.clip_polygon(feature.points, *bounds)
             if len(visible) < 3:
                 continue
-            min_x, min_y, max_x, max_y = geom.bbox(visible)
-            anchor = ((min_x + max_x) / 2.0, (min_y + max_y) / 2.0)
+            anchor = _visual_center(visible)
         else:
             anchor = _line_anchor(feature.points, bounds)
             if anchor is None:
@@ -378,6 +448,12 @@ def _palette_image() -> Image.Image:
     image = Image.new("P", (1, 1))
     image.putpalette(palette)
     return image
+
+
+def _scaled_font(font: ImageFont.ImageFont, scale: int) -> ImageFont.ImageFont:
+    if hasattr(font, "font_variant") and hasattr(font, "size"):
+        return font.font_variant(size=max(1, int(round(font.size * scale))))
+    return font
 
 
 def render_cell(
@@ -419,27 +495,21 @@ def render_cell(
             draw.line(points, fill=RasterStyle.RAIL, width=width + 2 * scale, joint="curve")
         draw.line(points, fill=_feature_color(feature.layer), width=width, joint="curve")
 
-    canvas = canvas.resize((size, size), Image.Resampling.LANCZOS)
-    draw = ImageDraw.Draw(canvas)
     placed = place_labels(_label_candidates(features, left, top, size), (size, size), fonts)
     for label in placed:
-        font = fonts.bold if label.bold else fonts.regular
-        text_box = font.getbbox(label.text, stroke_width=2)
-        text_width = text_box[2] - text_box[0]
-        text_height = text_box[3] - text_box[1]
-        position = (
-            label.anchor[0] - text_width / 2.0,
-            label.anchor[1] - text_height / 2.0,
-        )
+        base_font = fonts.bold if label.bold else fonts.regular
+        font = _scaled_font(base_font, scale)
+        position = (label.position[0] * scale, label.position[1] * scale)
         draw.text(
             position,
             label.text,
             font=font,
             fill=RasterStyle.LABEL,
-            stroke_width=2,
+            stroke_width=2 * scale,
             stroke_fill=RasterStyle.LABEL_HALO,
         )
 
+    canvas = canvas.resize((size, size), Image.Resampling.LANCZOS)
     return canvas.quantize(
         palette=_palette_image(), dither=Image.Dither.NONE
     )
