@@ -158,6 +158,9 @@ retaining the session and presenting a retry/discard choice.
 - Tile load failure: continue recording, evict cache entries, and retry only
   when tile selection changes or the user changes scale.
 - Exit with an active or paused session: require Save or Discard.
+- Forced lifecycle shutdown with an active or paused session: stop and make a
+  best-effort save, because the app cannot present a confirmation after the
+  system has begun shutting it down.
 - FIT save failure: preserve the session and offer Retry or Discard.
 
 ## Verification
