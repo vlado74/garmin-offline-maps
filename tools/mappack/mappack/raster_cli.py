@@ -6,9 +6,11 @@ import argparse
 import math
 from typing import List
 
+from PIL import ImageFont
+
 from . import osmread
 from .geom import BBox, MAX_LAT
-from .raster import resolve_fonts
+from .raster import RasterFonts, resolve_fonts
 from .raster_emit import write_raster_pack
 
 
@@ -50,10 +52,16 @@ def build_parser() -> argparse.ArgumentParser:
         prog="mappack-raster",
         description="Build offline raster bitmap resources for Connect IQ.",
     )
+    parser.add_argument("--input", help="read a local OSM extract instead of Overpass")
     parser.add_argument("--bbox", type=parse_bbox, required=True)
     parser.add_argument("--zooms", type=parse_zooms, required=True)
-    parser.add_argument("--font", required=True, help="regular TrueType font path")
-    parser.add_argument("--bold-font", required=True, help="bold TrueType font path")
+    parser.add_argument("--font", help="regular TrueType font path")
+    parser.add_argument("--bold-font", help="bold TrueType font path")
+    parser.add_argument(
+        "--pillow-default-font",
+        action="store_true",
+        help="use Pillow's bundled default font for reproducible test/demo output",
+    )
     parser.add_argument("--cache", help="reuse/cache the Overpass OSM response")
     parser.add_argument("--out", required=True, help="raster resource directory")
     parser.add_argument("--index", required=True, help="generated Monkey C index path")
@@ -62,9 +70,18 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> int:
-    args = build_parser().parse_args(argv)
-    fonts = resolve_fonts(args.font, args.bold_font)
-    ways = osmread.load(None, bbox=args.bbox, cache_path=args.cache)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.pillow_default_font:
+        if args.font or args.bold_font:
+            parser.error("--pillow-default-font cannot be combined with font paths")
+        default_font = ImageFont.load_default()
+        fonts = RasterFonts(default_font, default_font)
+    else:
+        if not args.font or not args.bold_font:
+            parser.error("pass --font and --bold-font, or --pillow-default-font")
+        fonts = resolve_fonts(args.font, args.bold_font)
+    ways = osmread.load(args.input, bbox=args.bbox, cache_path=args.cache)
     manifest = write_raster_pack(
         ways,
         args.bbox,

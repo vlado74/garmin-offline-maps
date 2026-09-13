@@ -19,7 +19,7 @@ sys.path.insert(0, ROOT)
 
 from mappack.osmread import Way  # noqa: E402
 from mappack.raster import RasterFonts  # noqa: E402
-from mappack.raster_cli import parse_bbox, parse_zooms  # noqa: E402
+from mappack.raster_cli import main as raster_main, parse_bbox, parse_zooms  # noqa: E402
 from mappack.raster_emit import write_raster_pack  # noqa: E402
 
 
@@ -155,6 +155,25 @@ class TestRasterEmit(unittest.TestCase):
             with self.subTest(text=text):
                 with self.assertRaises(argparse.ArgumentTypeError):
                     parse_zooms(text)
+
+    def test_cli_builds_from_local_osm_with_pillow_default_font(self):
+        fixture = os.path.join(TESTS, "demo-city.osm")
+
+        result = raster_main(
+            [
+                "--input", fixture,
+                "--bbox", "13.359,52.509,13.367,52.517",
+                "--zooms", "13,15",
+                "--pillow-default-font",
+                "--out", self.out,
+                "--index", self.index,
+                "--name", "Synthetic Raster Demo",
+            ]
+        )
+
+        self.assertEqual(result, 0)
+        self.assertTrue(os.path.isfile(os.path.join(self.out, "mapdata.xml")))
+        self.assertTrue(os.path.isfile(self.index))
 
     def test_emitter_rejects_other_zoom_pairs_before_writing(self):
         for zooms in ((13, 16), (13, 15, 15)):

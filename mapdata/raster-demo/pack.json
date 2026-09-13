@@ -1,0 +1,36 @@
+{
+  "attribution": "(c) OpenStreetMap contributors",
+  "bounds": [
+    13.3267,
+    52.495,
+    13.3997,
+    52.5317988
+  ],
+  "center": [
+    13.363199999999999,
+    52.5133994
+  ],
+  "grids": [
+    {
+      "cols": 4,
+      "originX": 1126200,
+      "originY": 687600,
+      "rows": 4,
+      "zoom": 13
+    },
+    {
+      "cols": 15,
+      "originX": 4504800,
+      "originY": 2750520,
+      "rows": 13,
+      "zoom": 15
+    }
+  ],
+  "name": "Synthetic Raster Demo",
+  "resourceCount": 211,
+  "tileSize": 120,
+  "zooms": [
+    13,
+    15
+  ]
+}
