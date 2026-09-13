@@ -10,7 +10,17 @@ ROOT = os.path.dirname(TESTS)
 sys.path.insert(0, ROOT)
 
 from mappack import geom  # noqa: E402
-from mappack.raster import RasterGrid, cell_bounds, grid_for, visible_cells  # noqa: E402
+from PIL import ImageFont  # noqa: E402
+
+from mappack.raster import (  # noqa: E402
+    LabelCandidate,
+    RasterFonts,
+    RasterGrid,
+    cell_bounds,
+    grid_for,
+    place_labels,
+    visible_cells,
+)
 
 
 ROME = (12.4644720888, 41.8094001206, 12.5247529112, 41.8543156794)
@@ -86,6 +96,20 @@ class TestVisibleCells(unittest.TestCase):
         ):
             self.assertAlmostEqual(screen_x, expected_x)
             self.assertAlmostEqual(screen_y, expected_y)
+
+
+class TestLabelPlacement(unittest.TestCase):
+    def test_collision_keeps_the_higher_priority_name(self):
+        font = ImageFont.load_default()
+        fonts = RasterFonts(font, font)
+        low_priority = LabelCandidate("Parco", 10, (60.0, 60.0), False)
+        high_priority = LabelCandidate("Via Principale", 100, (60.0, 60.0), True)
+
+        placed = place_labels(
+            [low_priority, high_priority], (120, 120), fonts
+        )
+
+        self.assertEqual([label.text for label in placed], ["Via Principale"])
 
 
 if __name__ == "__main__":
