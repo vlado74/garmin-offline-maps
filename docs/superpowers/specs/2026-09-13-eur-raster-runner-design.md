@@ -86,12 +86,12 @@ bounds, and emits compressed bitmap resources plus a generated index. Labels
 are baked into the images, so the watch does no text placement or road
 rendering.
 
-The builder uses 256 x 256 independently loadable tiles and a 32-color palette,
-packed as compressed PNG resources. If physical-device measurement shows that
-four visible tiles cannot coexist in the graphics pool, the implementation
-switches to 128 x 128 generated tiles without changing the runtime interface or
-geographic coverage. It must emit bounds, centre, scale metadata, and the
-required OpenStreetMap attribution.
+The builder uses 120 x 120 independently loadable tiles and a 32-color palette,
+packed as compressed PNG resources. A 360 x 360 viewport intersects at most
+four tiles per axis, bounding the visible indexed image data at 230,400 pixels.
+The custom tile grid is anchored in Web Mercator world pixels and recorded in
+the generated index. The builder must emit bounds, centre, scale metadata, and
+the required OpenStreetMap attribution.
 
 Bulk use of the public OpenStreetMap tile servers is not part of the pipeline.
 The builder renders locally from OpenStreetMap data downloaded through the
@@ -102,8 +102,8 @@ existing packer's data source and retains OpenStreetMap attribution.
 The runtime map component converts latitude/longitude to Web Mercator world
 pixels, selects the visible tiles for the active scale, and computes their
 screen offsets around the current GPS position. It keeps only the visible
-bitmap references and a small neighboring set. Resource changes happen outside
-the draw callback; the draw callback only paints already selected bitmaps.
+bitmap references. Resource changes happen outside the draw callback; the draw
+callback only paints already selected bitmaps.
 
 Missing or unloadable tiles are recoverable. The component evicts unused
 references, fills the affected area with the neutral map color, and reports a
