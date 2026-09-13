@@ -82,7 +82,8 @@ def _index_source(
     lines = [
         "//",
         "// GENERATED FILE -- DO NOT EDIT.",
-        "// Produced by tools/mappack. Re-run `make raster-pack` to regenerate.",
+        "// Produced by tools/mappack. Regenerate with `make raster-demo` or",
+        "// `make raster-pack`, according to the pack selected for this build.",
         "//",
         "",
         "module RasterMapIndex {",

@@ -5,11 +5,13 @@ import math
 import os
 import re
 import unittest
+import xml.etree.ElementTree as ET
 
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 PACK = os.path.join(ROOT, "mapdata", "raster-demo")
 INDEX = os.path.join(ROOT, "source", "generated", "RasterMapIndex.mc")
+JUNGLE = os.path.join(ROOT, "monkey.jungle")
 
 
 def world_x(lon, zoom):
@@ -43,6 +45,37 @@ class TestCommittedRasterMap(unittest.TestCase):
         self.assertEqual(len(ids), self.pack["resourceCount"])
         for resource_id in ids:
             self.assertTrue(os.path.isfile(os.path.join(PACK, "tiles", resource_id + ".png")))
+
+    def test_generated_indexes_only_reference_resources_on_the_build_path(self):
+        with open(JUNGLE, encoding="utf-8") as handle:
+            match = re.search(r"^base\.resourcePath\s*=\s*(.+)$", handle.read(), re.M)
+        self.assertIsNotNone(match)
+
+        declared = set()
+        for relative_dir in match.group(1).strip().split(";"):
+            resource_dir = os.path.join(ROOT, relative_dir)
+            for directory, _subdirs, filenames in os.walk(resource_dir):
+                for filename in filenames:
+                    if filename.endswith(".xml"):
+                        for element in ET.parse(os.path.join(directory, filename)).iter():
+                            resource_id = element.attrib.get("id")
+                            if resource_id:
+                                declared.add(resource_id)
+
+        referenced = set()
+        generated_dir = os.path.join(ROOT, "source", "generated")
+        for filename in os.listdir(generated_dir):
+            if filename.endswith(".mc"):
+                with open(os.path.join(generated_dir, filename), encoding="utf-8") as handle:
+                    referenced.update(
+                        re.findall(r"Rez\.(?:JsonData|Drawables)\.(\w+)", handle.read())
+                    )
+
+        self.assertFalse(
+            referenced - declared,
+            "generated indexes reference resources absent from base.resourcePath: %s"
+            % sorted(referenced - declared),
+        )
 
     def test_watch_and_host_agree_on_tile_size_and_zooms(self):
         self.assertEqual(self.pack["tileSize"], 120)
