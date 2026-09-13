@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import tempfile
+import unicodedata
 from typing import Iterable, List, Sequence
 
 from .geom import BBox
@@ -51,6 +52,14 @@ def _resource_xml(grids: Sequence[RasterGrid]) -> str:
     return "\n".join(lines)
 
 
+def _monkey_c_string(text: str) -> str:
+    """Return a Monkey C string literal without altering valid text."""
+    if any(unicodedata.category(character) == "Cc" for character in text):
+        raise ValueError("pack name contains a control character")
+    escaped = text.replace("\\", "\\\\").replace('"', '\\"')
+    return '"%s"' % escaped
+
+
 def _zoom_lookup(lines: List[str], name: str, grids: Sequence[RasterGrid]) -> None:
     lines.append("    function %s(zoom) {" % name)
     for grid in grids:
@@ -79,7 +88,7 @@ def _index_source(
         "module RasterMapIndex {",
         "    const TILE_SIZE = %d;" % grids[0].tile_size,
         "    const ZOOMS = [%s];" % ", ".join(str(grid.zoom) for grid in grids),
-        '    const PACK_NAME = "%s";' % name.replace('"', ""),
+        "    const PACK_NAME = %s;" % _monkey_c_string(name),
         '    const ATTRIBUTION = "%s";' % DEFAULT_ATTRIBUTION,
         "    const WEST = %.7fd;" % west,
         "    const SOUTH = %.7fd;" % south,
@@ -131,11 +140,12 @@ def write_raster_pack(
     name: str = "raster",
 ):
     """Render and atomically index a deterministic two-zoom raster pack."""
-    zoom_values = sorted(set(zooms))
-    if len(zoom_values) != 2:
-        raise ValueError("raster packs require exactly two distinct zoom levels")
+    zoom_values = sorted(zooms)
+    if zoom_values != [13, 15]:
+        raise ValueError("raster packs require zooms 13 and 15")
 
     grids = [grid_for(bounds, zoom) for zoom in zoom_values]
+    index_source = _index_source(grids, bounds, name)
     source_ways = tuple(ways)
     tiles_dir = os.path.join(out_dir, "tiles")
     if os.path.islink(tiles_dir) or os.path.isfile(tiles_dir):
@@ -182,5 +192,5 @@ def write_raster_pack(
         os.path.join(out_dir, "pack.json"),
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
     )
-    _atomic_write(index_path, _index_source(grids, bounds, name))
+    _atomic_write(index_path, index_source)
     return manifest

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import math
 from typing import List
 
 from . import osmread
-from .geom import BBox
+from .geom import BBox, MAX_LAT
 from .raster import resolve_fonts
 from .raster_emit import write_raster_pack
 
@@ -19,6 +20,14 @@ def parse_bbox(text: str) -> BBox:
     if len(values) != 4:
         raise argparse.ArgumentTypeError("bbox needs west,south,east,north")
     west, south, east, north = values
+    if not all(math.isfinite(value) for value in values):
+        raise argparse.ArgumentTypeError("bbox values must be finite")
+    if west < -180.0 or east > 180.0:
+        raise argparse.ArgumentTypeError("bbox longitude must be within -180..180")
+    if south < -MAX_LAT or north > MAX_LAT:
+        raise argparse.ArgumentTypeError(
+            "bbox latitude must be within %.8f..%.8f" % (-MAX_LAT, MAX_LAT)
+        )
     if west >= east or south >= north:
         raise argparse.ArgumentTypeError("bbox must satisfy west<east and south<north")
     return west, south, east, north
@@ -27,12 +36,12 @@ def parse_bbox(text: str) -> BBox:
 def parse_zooms(text: str) -> List[int]:
     try:
         zooms = sorted(
-            set(int(part.strip()) for part in text.split(",") if part.strip())
+            int(part.strip()) for part in text.split(",") if part.strip()
         )
     except ValueError as error:
         raise argparse.ArgumentTypeError("zooms must be integers") from error
-    if len(zooms) != 2:
-        raise argparse.ArgumentTypeError("--zooms needs exactly two distinct levels")
+    if zooms != [13, 15]:
+        raise argparse.ArgumentTypeError("--zooms must be exactly 13,15")
     return zooms
 
 

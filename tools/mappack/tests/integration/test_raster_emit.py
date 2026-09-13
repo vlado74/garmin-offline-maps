@@ -1,5 +1,6 @@
 """Integration tests for emitted raster resources and their Monkey C index."""
 
+import argparse
 import glob
 import json
 import os
@@ -18,6 +19,7 @@ sys.path.insert(0, ROOT)
 
 from mappack.osmread import Way  # noqa: E402
 from mappack.raster import RasterFonts  # noqa: E402
+from mappack.raster_cli import parse_bbox, parse_zooms  # noqa: E402
 from mappack.raster_emit import write_raster_pack  # noqa: E402
 
 
@@ -146,6 +148,84 @@ class TestRasterEmit(unittest.TestCase):
         self.assertIn("function resourceAt(zoom, col, row)", index)
         self.assertEqual(index.count("if (col < 0 || row < 0"), 2)
         self.assertIn("if (zoom == 15) { return resourceAt15(col, row); }", index)
+
+    def test_cli_accepts_only_the_zoom_13_and_15_pair(self):
+        self.assertEqual(parse_zooms("15,13"), [13, 15])
+        for text in ("12,14", "13,16", "13,13", "13,15,15"):
+            with self.subTest(text=text):
+                with self.assertRaises(argparse.ArgumentTypeError):
+                    parse_zooms(text)
+
+    def test_emitter_rejects_other_zoom_pairs_before_writing(self):
+        for zooms in ((13, 16), (13, 15, 15)):
+            with self.subTest(zooms=zooms):
+                with self.assertRaises(ValueError):
+                    write_raster_pack(
+                        self.ways,
+                        self.bounds,
+                        zooms,
+                        self.out,
+                        self.index,
+                        fonts=self.fonts,
+                    )
+
+        self.assertFalse(os.path.exists(self.out))
+
+    def test_pack_name_is_preserved_and_escaped_for_monkey_c(self):
+        name = 'Runner "A" \\ East – Roma'
+
+        manifest = write_raster_pack(
+            self.ways,
+            self.bounds,
+            (13, 15),
+            self.out,
+            self.index,
+            fonts=self.fonts,
+            name=name,
+        )
+
+        self.assertEqual(manifest["name"], name)
+        self.assertIn(
+            'const PACK_NAME = "Runner \\"A\\" \\\\ East – Roma";',
+            self.read(self.index),
+        )
+
+    def test_pack_name_rejects_control_characters_before_writing(self):
+        for position, name in enumerate(
+            ("Line\nBreak", "Tab\tBreak", "Nul\0Break", "Delete\x7fBreak")
+        ):
+            with self.subTest(name=repr(name)):
+                out = os.path.join(self.temp_dir.name, "raster-%d" % position)
+                index = os.path.join(self.temp_dir.name, "index-%d.mc" % position)
+                with self.assertRaisesRegex(ValueError, "control character"):
+                    write_raster_pack(
+                        self.ways,
+                        self.bounds,
+                        (13, 15),
+                        out,
+                        index,
+                        fonts=self.fonts,
+                        name=name,
+                    )
+                self.assertFalse(os.path.exists(out))
+
+    def test_bbox_rejects_non_finite_or_out_of_mercator_range_values(self):
+        self.assertEqual(
+            parse_bbox("-180,-85.05112878,180,85.05112878"),
+            (-180.0, -85.05112878, 180.0, 85.05112878),
+        )
+        invalid = (
+            "nan,-1,1,1",
+            "-1,-1,inf,1",
+            "-181,-1,1,1",
+            "-1,-1,181,1",
+            "-1,-85.05112879,1,1",
+            "-1,-1,1,85.05112879",
+        )
+        for text in invalid:
+            with self.subTest(text=text):
+                with self.assertRaises(argparse.ArgumentTypeError):
+                    parse_bbox(text)
 
 
 if __name__ == "__main__":
