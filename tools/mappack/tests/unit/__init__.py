@@ -6,6 +6,7 @@ fine, wiring several stages together is not (that is ``tests/integration``).
 
     test_varint.py    -> mappack/varint.py
     test_geom.py      -> mappack/geom.py
+    test_raster.py    -> mappack/raster.py
     test_classify.py  -> mappack/classify.py
     test_osmread.py   -> mappack/osmread.py
 
