@@ -38,6 +38,9 @@ tools/mappack/*.osm
 mapdata/active/
 .DS_Store
 
+# Isolated implementation workspaces
+.worktrees/
+
 # Personal packs built alongside the committed demo
 mapdata/berlin/
 
