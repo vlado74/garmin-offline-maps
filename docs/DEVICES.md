@@ -17,10 +17,11 @@ Install the PRG, go outdoors, and wait for the green start state. Then:
 3. hold UP/MENU twice and verify that the metrics band hides and returns;
 4. drag the map, check that the GPS marker moves relative to it, then tap to
    recenter and resume GPS following;
-5. cross at least one raster-cell boundary and check for seams or blank cells;
-6. pause and resume, confirming the same timer and trail continue;
-7. press BACK, save, and synchronize the watch;
-8. confirm Garmin Connect shows one street-running activity with route geometry.
+5. verify that the red house stays fixed to the map at every zoom level;
+6. cross at least one raster-cell boundary and check for seams or blank cells;
+7. pause and resume, confirming the same timer and trail continue;
+8. press BACK, save, and synchronize the watch;
+9. confirm Garmin Connect shows one street-running activity with route geometry.
 
 Repeat briefly with GPS loss or outside the pack. The status should turn red and
 FIT recording must remain recoverable.

@@ -7,6 +7,7 @@ module RunStyle {
     const DIM = Graphics.COLOR_DK_GRAY;
     const MARKER = 0x00D7FF;
     const MARKER_OUTLINE = Graphics.COLOR_BLACK;
+    const HOME = 0xFF4040;
     const BAND = Graphics.COLOR_BLACK;
     const BAND_TEXT = Graphics.COLOR_WHITE;
     const READY = 0x40E060;

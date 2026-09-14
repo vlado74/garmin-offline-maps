@@ -13,6 +13,7 @@ coordinates, signing keys, previews, and `.prg` files are ignored by Git.
 - north-up map that follows GPS until manually panned;
 - overview at zoom 13, street detail at zoom 15, and a 2x close view;
 - a cyan breadcrumb sampled every 5 m and bounded to 512 points;
+- a fixed red house icon at the private pack centre;
 - elapsed time, distance in kilometres, and average pace in min/km;
 - clear GPS, map, recording, pause, and save-failure states;
 - a FIT street-running activity that synchronizes through Garmin Connect.

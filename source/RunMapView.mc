@@ -141,6 +141,7 @@ class RunMapView extends WatchUi.View {
         _store.draw(dc);
         drawAttribution(dc);
         _trail.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
+        drawHomeMarker(dc);
         if (_gpsReady) { drawMarker(dc); }
         drawStatus(dc);
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
@@ -168,6 +169,31 @@ class RunMapView extends WatchUi.View {
         dc.fillCircle(x.toNumber(), y.toNumber(), 8);
         dc.setColor(RunStyle.MARKER, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(x.toNumber(), y.toNumber(), 5);
+    }
+
+    //! Fixed home landmark; private coordinates never enter version control.
+    hidden function drawHomeMarker(dc) {
+        var x = _width / 2.0d + Mercator.lonToWorldX(RasterMapIndex.HOME_LON, _zoom)
+                - Mercator.lonToWorldX(_centreLon, _zoom);
+        var y = _height / 2.0d + Mercator.latToWorldY(RasterMapIndex.HOME_LAT, _zoom)
+                - Mercator.latToWorldY(_centreLat, _zoom);
+        if (x < -12 || x > _width + 12 || y < -12 || y > _height + 12) { return; }
+        var px = x.toNumber();
+        var py = y.toNumber();
+
+        dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(4);
+        dc.drawLine(px - 9, py, px, py - 9);
+        dc.drawLine(px, py - 9, px + 9, py);
+        dc.fillRectangle(px - 8, py - 1, 17, 11);
+
+        dc.setColor(RunStyle.HOME, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        dc.drawLine(px - 7, py, px, py - 7);
+        dc.drawLine(px, py - 7, px + 7, py);
+        dc.fillRectangle(px - 6, py, 13, 8);
+        dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(px - 2, py + 3, 4, 5);
     }
 
     hidden function drawRecenterHint(dc) {

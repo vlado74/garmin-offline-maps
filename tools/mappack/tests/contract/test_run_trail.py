@@ -197,12 +197,13 @@ class TestRunTrail(unittest.TestCase):
         ):
             self.assertIn(rejection, visible)
 
-    def test_draw_order_is_raster_attribution_trail_then_marker(self):
+    def test_draw_order_keeps_home_and_gps_above_the_trail(self):
         update = function_body(self.view_source, "onUpdate")
         draw_order = [
             update.index("_store.draw(dc)"),
             update.index("drawAttribution(dc)"),
             update.index("_trail.draw(dc"),
+            update.index("drawHomeMarker(dc)"),
             update.index("drawMarker(dc)"),
         ]
         self.assertEqual(draw_order, sorted(draw_order))

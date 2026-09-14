@@ -97,6 +97,8 @@ def _index_source(
         "    const NORTH = %.7fd;" % north,
         "    const CENTER_LON = %.7fd;" % center_lon,
         "    const CENTER_LAT = %.7fd;" % center_lat,
+        "    const HOME_LON = %.7fd;" % center_lon,
+        "    const HOME_LAT = %.7fd;" % center_lat,
         "",
     ]
 

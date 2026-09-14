@@ -69,6 +69,8 @@ class TestRasterEmit(unittest.TestCase):
         self.assertTrue(os.path.exists(os.path.join(self.out, "mapdata.xml")))
         self.assertIn('packingFormat="png"', self.read(os.path.join(self.out, "mapdata.xml")))
         self.assertIn("module RasterMapIndex", self.read(self.index))
+        self.assertIn("const HOME_LON = 0.0000000d;", self.read(self.index))
+        self.assertIn("const HOME_LAT = 0.0000000d;", self.read(self.index))
         pngs = glob.glob(os.path.join(self.out, "tiles", "*.png"))
         self.assertEqual(len(pngs), manifest["resourceCount"])
         self.assertEqual(len(pngs), 13)

@@ -15,6 +15,8 @@ module RasterMapIndex {
     const NORTH = 52.5317988d;
     const CENTER_LON = 13.3632000d;
     const CENTER_LAT = 52.5133994d;
+    const HOME_LON = 13.3632000d;
+    const HOME_LAT = 52.5133994d;
 
     function originX(zoom) {
         if (zoom == 13) { return 1126200; }
