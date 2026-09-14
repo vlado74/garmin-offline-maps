@@ -4,15 +4,17 @@ import Toybox.WatchUi;
 //! North-up, GPS-centred raster map base view.
 class RunMapView extends WatchUi.View {
     hidden var _store;
+    hidden var _trail;
     hidden var _width;
     hidden var _height;
     hidden var _lat;
     hidden var _lon;
     hidden var _zoom;
 
-    function initialize(store) {
+    function initialize(store, trail) {
         View.initialize();
         _store = store;
+        _trail = trail;
         _width = 360;
         _height = 360;
         _lat = RasterMapIndex.CENTER_LAT;
@@ -55,6 +57,7 @@ class RunMapView extends WatchUi.View {
     function onUpdate(dc) {
         _store.draw(dc);
         drawAttribution(dc);
+        _trail.draw(dc, _lat, _lon, _zoom, _width, _height);
         drawMarker(dc);
     }
 
