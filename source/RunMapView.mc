@@ -227,6 +227,11 @@ class RunMapView extends WatchUi.View {
     }
 
     function onUpdate(dc) {
+        if (_showLapDetails) {
+            drawLapDetails(dc);
+            if (_showLapButton) { drawLapButton(dc); }
+            return;
+        }
         _store.draw(dc);
         drawAttribution(dc);
         if (_showStreetLabels) {
@@ -241,7 +246,6 @@ class RunMapView extends WatchUi.View {
         drawScaleBar(dc);
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
         drawStatus(dc);
-        if (_showLapDetails) { drawLapDetails(dc); }
         if (_showLapButton) { drawLapButton(dc); }
         if (_showMarkerButton) { drawMarkerModeButton(dc); }
         if (_showLabelButton) { drawStreetLabelButton(dc); }
@@ -312,31 +316,30 @@ class RunMapView extends WatchUi.View {
     }
 
     hidden function drawLapDetails(dc) {
-        var panelX = 30;
-        var panelY = 44;
-        var panelWidth = _width - 60;
         dc.setColor(_detailBackgroundColor, _detailBackgroundColor);
-        dc.fillRectangle(panelX, panelY, panelWidth, 230);
+        dc.fillRectangle(0, 0, _width, _height);
         dc.setColor(_detailTextColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(_width / 2, panelY + 18, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, 24, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.TotalTime) + "  "
                     + formatTimer(_controller.timerMs()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, panelY + 50, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, 61, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.TotalDistance) + "  "
                     + formatDistance(_controller.distanceMetres()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, panelY + 82, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, 98, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.AveragePace) + "  "
                     + formatPace(_controller.averagePaceSeconds()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawLine(panelX + 24, panelY + 116, panelX + panelWidth - 24, panelY + 116);
-        dc.drawText(_width / 2, panelY + 128, Graphics.FONT_XTINY,
+        dc.drawLine(58, 140, _width - 58, 140);
+        dc.drawText(_width / 2, 150, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.Laps) + "  "
                     + _laps.count().format("%d"), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, panelY + 160, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, 183, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.LastLap) + "  "
                     + formatLapTime(_laps.lastTimeMs()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, panelY + 192, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, 216, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.LapDistance) + "  "
-                    + formatDistance(_laps.lastDistanceMetres()) + "   "
+                    + formatDistance(_laps.lastDistanceMetres()), Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(_width / 2, 249, Graphics.FONT_SMALL,
+                    WatchUi.loadResource(Rez.Strings.LapPace) + "  "
                     + formatPace(_laps.lastPaceSeconds()), Graphics.TEXT_JUSTIFY_CENTER);
     }
 

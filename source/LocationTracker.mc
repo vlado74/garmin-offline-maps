@@ -11,6 +11,7 @@ class LocationTracker {
     hidden var _hasFix;
     hidden var _accuracy;
     hidden var _heading;
+    hidden var _speed;
     hidden var _hasHeading;
     hidden var _onFix;
     hidden var _running;
@@ -21,6 +22,7 @@ class LocationTracker {
         _hasFix = false;
         _accuracy = Position.QUALITY_NOT_AVAILABLE;
         _heading = 0.0d;
+        _speed = 0.0d;
         _hasHeading = false;
         _onFix = onFix;
         _running = false;
@@ -31,6 +33,7 @@ class LocationTracker {
     function hasFix() { return _hasFix; }
     function accuracy() { return _accuracy; }
     function heading() { return _heading; }
+    function speed() { return _speed; }
     function hasHeading() { return _hasHeading; }
     function hasUsableFix() {
         return _hasFix && (_accuracy == Position.QUALITY_USABLE
@@ -78,6 +81,7 @@ class LocationTracker {
             _hasFix = false;
             _accuracy = Position.QUALITY_NOT_AVAILABLE;
             _hasHeading = false;
+            _speed = 0.0d;
             if (_onFix != null) { _onFix.invoke(); }
             return;
         }
@@ -86,6 +90,7 @@ class LocationTracker {
         _lon = degrees[1];
         _hasFix = true;
         _accuracy = info.accuracy;
+        _speed = info.speed == null ? 0.0d : info.speed;
         _hasHeading = info.heading != null && info.speed != null
             && info.speed >= MIN_HEADING_SPEED;
         if (_hasHeading) { _heading = info.heading; }

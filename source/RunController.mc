@@ -3,6 +3,8 @@ import Toybox.ActivityRecording;
 
 //! Owns the single FIT recording session for one run.
 class RunController {
+    const MIN_MOVING_SPEED = 0.8d;
+    const MIN_PACE_DISTANCE_METRES = 20.0d;
     const WAITING_GPS = :waitingGps;
     const READY = :ready;
     const RECORDING = :recording;
@@ -19,12 +21,17 @@ class RunController {
     hidden var _state;
     hidden var _gpsReady;
     hidden var _recordingActive;
+    hidden var _movingTimeMs;
+    hidden var _movingDistance;
+    hidden var _lastMotionTime;
+    hidden var _lastMotionDistance;
 
     function initialize() {
         _session = null;
         _state = WAITING_GPS;
         _gpsReady = false;
         _recordingActive = false;
+        resetMovingMetrics();
     }
 
     function setGpsReady(ready) {
@@ -47,6 +54,7 @@ class RunController {
                     return false;
                 }
                 _recordingActive = true;
+                resetMovingMetrics();
                 _state = RECORDING;
                 return true;
             } catch (ex) {
@@ -56,6 +64,7 @@ class RunController {
         }
         if (_state == RECORDING) {
             if (!stopRecording()) { return false; }
+            resetMotionAnchor();
             _state = PAUSED;
             return true;
         }
@@ -63,6 +72,7 @@ class RunController {
             try {
                 if (!_session.start()) { return false; }
                 _recordingActive = true;
+                resetMotionAnchor();
                 _state = RECORDING;
                 return true;
             } catch (ex) {
@@ -147,12 +157,39 @@ class RunController {
         return info == null || info.elapsedDistance == null ? 0 : info.elapsedDistance;
     }
 
-    function averagePaceSeconds() {
-        var info = Activity.getActivityInfo();
-        if (info == null || info.averageSpeed == null || info.averageSpeed <= 0) {
-            return null;
+    //! Accumulate pace time only while Garmin reports actual running movement.
+    function updateMotion(speed, distanceMetres, timerMs) {
+        if (_state != RECORDING) { return; }
+        if (_lastMotionTime == null || _lastMotionDistance == null) {
+            _lastMotionTime = timerMs;
+            _lastMotionDistance = distanceMetres;
+            return;
         }
-        return 1000.0d / info.averageSpeed;
+        var elapsed = timerMs - _lastMotionTime;
+        var travelled = distanceMetres - _lastMotionDistance;
+        _lastMotionTime = timerMs;
+        _lastMotionDistance = distanceMetres;
+        if (speed >= MIN_MOVING_SPEED && elapsed > 0 && elapsed <= 10000
+            && travelled > 0.0d && travelled < 100.0d) {
+            _movingTimeMs += elapsed;
+            _movingDistance += travelled;
+        }
+    }
+
+    function averagePaceSeconds() {
+        if (_movingDistance < MIN_PACE_DISTANCE_METRES) { return null; }
+        return _movingTimeMs / _movingDistance;
+    }
+
+    hidden function resetMovingMetrics() {
+        _movingTimeMs = 0.0d;
+        _movingDistance = 0.0d;
+        resetMotionAnchor();
+    }
+
+    hidden function resetMotionAnchor() {
+        _lastMotionTime = null;
+        _lastMotionDistance = null;
     }
 
     hidden function settleIdleState() {

@@ -121,9 +121,13 @@ class TestRunUi(unittest.TestCase):
         self.assertIn("distanceMetres()", view)
         self.assertIn("averagePaceSeconds()", view)
         details = view.split("function drawLapDetails(dc)", 1)[1].split("function", 1)[0]
+        self.assertIn("fillRectangle(0, 0, _width, _height)", details)
+        self.assertIn("Graphics.FONT_SMALL", details)
         self.assertIn("timerMs()", details)
         self.assertIn("distanceMetres()", details)
         self.assertIn("averagePaceSeconds()", details)
+        update = view.split("function onUpdate(dc)", 1)[1].split("function", 1)[0]
+        self.assertRegex(update, r"if \(_showLapDetails\)[\s\S]*?drawLapDetails[\s\S]*?return")
         for resource in ("Start", "Pause", "SaveFailed", "OutsideMap", "WaitingForGps"):
             self.assertIn(f"Rez.Strings.{resource}", view)
         self.assertIn('+ " km"', view)

@@ -179,6 +179,17 @@ class TestRunController(unittest.TestCase):
         self.assertIs(run.session, session)
         self.assertEqual(session.starts, 2)
 
+    def test_average_pace_uses_only_moving_samples(self):
+        self.assertIn("const MIN_MOVING_SPEED = 0.8d", self.source)
+        self.assertIn("function updateMotion(speed, distanceMetres, timerMs)", self.source)
+        update = self.source.split("function updateMotion", 1)[1].split("function", 1)[0]
+        self.assertIn("speed >= MIN_MOVING_SPEED", update)
+        self.assertIn("_movingTimeMs", update)
+        pace = self.source.split("function averagePaceSeconds()", 1)[1].split("function", 1)[0]
+        self.assertIn("_movingTimeMs", pace)
+        self.assertIn("_movingDistance", pace)
+        self.assertNotIn("averageSpeed", pace)
+
     def test_failed_save_retains_session_for_retry(self):
         session = FakeSession(save_result=False)
         run = recording_controller(session)
