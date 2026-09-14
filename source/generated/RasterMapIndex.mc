@@ -276,3 +276,37 @@ module RasterMapIndex {
     }
 
 }
+
+module StreetLabelIndex {
+    function labelsAt(col, row) {
+        if (col < 0 || row < 0 || col >= 15 || row >= 13) { return null; }
+        var key = col * 13 + row;
+        switch (key) {
+            case 20: return [[4504930, 2751386, "Calle 1"], [4505022, 2751386, "Calle 2"]];
+            case 33: return [[4505119, 2751386, "Calle 3"]];
+            case 46: return [[4505164, 2751390, "Ronda Oeste"], [4505217, 2751386, "Calle 4"]];
+            case 59: return [[4505315, 2751386, "Calle 5"]];
+            case 72: return [[4505499, 2751386, "Calle 7"], [4505408, 2751386, "Calle 6"]];
+            case 85: return [[4505591, 2751386, "Calle 8"]];
+            case 91: return [[4505689, 2750635, "A-99"]];
+            case 93: return [[4505689, 2750816, "Travesia 13"]];
+            case 94: return [[4505689, 2750909, "Travesia 12"]];
+            case 95: return [[4505689, 2751000, "Travesia 11"], [4505689, 2751094, "Travesia 10"]];
+            case 96: return [[4505689, 2751192, "Travesia 9"]];
+            case 97: return [[4505689, 2751292, "Travesia 8"]];
+            case 98: return [[4505690, 2751371, "Gran Via Demo"], [4505710, 2751387, "Paseo Central"], [4505689, 2751391, "Travesia 7"], [4505686, 2751386, "Calle 9"]];
+            case 99: return [[4505689, 2751576, "Travesia 5"], [4505689, 2751484, "Travesia 6"]];
+            case 100: return [[4505689, 2751669, "Travesia 4"]];
+            case 101: return [[4505689, 2751766, "Travesia 3"]];
+            case 102: return [[4505689, 2751865, "Travesia 2"]];
+            case 103: return [[4505689, 2751964, "Travesia 1"]];
+            case 111: return [[4505784, 2751386, "Calle 10"]];
+            case 124: return [[4505882, 2751386, "Calle 11"], [4505977, 2751386, "Calle 12"]];
+            case 137: return [[4506068, 2751386, "Calle 13"]];
+            case 150: return [[4506237, 2751388, "Ronda Este"], [4506159, 2751386, "Calle 14"]];
+            case 163: return [[4506351, 2751386, "Calle 16"], [4506253, 2751386, "Calle 15"]];
+            case 176: return [[4506449, 2751386, "Calle 17"]];
+        }
+        return null;
+    }
+}

@@ -168,6 +168,7 @@ class RunMapView extends WatchUi.View {
     function onUpdate(dc) {
         _store.draw(dc);
         drawAttribution(dc);
+        StreetLabelOverlay.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
         _trail.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
         drawHomeMarker(dc);
         if (_gpsReady) { drawMarker(dc); }

@@ -12,6 +12,7 @@ from typing import Iterable, List, Sequence
 from .geom import BBox
 from .osmread import DEFAULT_ATTRIBUTION, Way
 from .raster import RasterFonts, RasterGrid, build_scene, grid_for, render_cell
+from .street_labels import street_label_cells
 
 
 def _atomic_write(path: str, text: str) -> None:
@@ -74,7 +75,7 @@ def _zoom_lookup(lines: List[str], name: str, grids: Sequence[RasterGrid]) -> No
 
 
 def _index_source(
-    grids: Sequence[RasterGrid], bounds: BBox, name: str
+    grids: Sequence[RasterGrid], bounds: BBox, name: str, ways: Sequence[Way]
 ) -> str:
     west, south, east, north = bounds
     center_lon = (west + east) / 2.0
@@ -130,6 +131,24 @@ def _index_source(
                 )
         lines.extend(["        }", "        return null;", "    }", ""])
     lines.extend(["}", ""])
+
+    detail = next(grid for grid in grids if grid.zoom == 15)
+    labels = street_label_cells(ways, detail)
+    lines.extend([
+        "module StreetLabelIndex {",
+        "    function labelsAt(col, row) {",
+        "        if (col < 0 || row < 0 || col >= %d || row >= %d) { return null; }"
+        % (detail.cols, detail.rows),
+        "        var key = col * %d + row;" % detail.rows,
+        "        switch (key) {",
+    ])
+    for (col, row), cell_labels in sorted(labels.items()):
+        entries = ", ".join(
+            "[%d, %d, %s]" % (label.world_x, label.world_y, _monkey_c_string(label.text))
+            for label in cell_labels
+        )
+        lines.append("            case %d: return [%s];" % (col * detail.rows + row, entries))
+    lines.extend(["        }", "        return null;", "    }", "}", ""])
     return "\n".join(lines)
 
 
@@ -147,9 +166,9 @@ def write_raster_pack(
     if zoom_values != [13, 15]:
         raise ValueError("raster packs require zooms 13 and 15")
 
-    grids = [grid_for(bounds, zoom) for zoom in zoom_values]
-    index_source = _index_source(grids, bounds, name)
     source_ways = tuple(ways)
+    grids = [grid_for(bounds, zoom) for zoom in zoom_values]
+    index_source = _index_source(grids, bounds, name, source_ways)
     tiles_dir = os.path.join(out_dir, "tiles")
     if os.path.islink(tiles_dir) or os.path.isfile(tiles_dir):
         os.unlink(tiles_dir)
