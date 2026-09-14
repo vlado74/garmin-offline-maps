@@ -83,8 +83,10 @@ class ControllerModel:
         if self.state == "recording":
             try:
                 if not self.session.stop():
+                    self.state = "saveFailed"
                     return False
             except Exception:
+                self.state = "saveFailed"
                 return False
             self.recording_active = False
             self.state = "paused"
@@ -211,7 +213,19 @@ class TestRunController(unittest.TestCase):
         session = FakeSession(stop_result=False)
         run = recording_controller(session)
         self.assertFalse(run.toggle())
-        self.assertEqual("recording", run.state)
+        self.assertEqual("saveFailed", run.state)
+
+    def test_stop_exception_is_retried_by_shutdown(self):
+        session = FakeSession(stop_result=RuntimeError("stop failed"))
+        run = recording_controller(session)
+
+        self.assertFalse(run.shutdown())
+        self.assertEqual((session.stops, session.saves), (1, 0))
+        self.assertIs(run.session, session)
+        session.stop_result = True
+        self.assertTrue(run.shutdown())
+        self.assertEqual((session.stops, session.saves), (2, 1))
+        self.assertIsNone(run.session)
 
     def test_failed_discard_retains_session(self):
         for failed in (False, RuntimeError("discard failed")):
