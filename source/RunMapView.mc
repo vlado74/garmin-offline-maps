@@ -13,7 +13,7 @@ class RunMapView extends WatchUi.View {
     const LABEL_BUTTON_HIT_RADIUS = 28;
     const LAP_DETAIL_VISIBLE_MS = 8000;
     const MARKER_BUTTON_X = 68;
-    const MARKER_BUTTON_Y = 110;
+    const MARKER_BUTTON_Y = 68;
 
     hidden var _store;
     hidden var _trail;
