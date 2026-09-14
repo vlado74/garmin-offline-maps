@@ -1,13 +1,7 @@
 <resources>
-    <string id="AppName">Offline Maps</string>
-
-    <string id="NoDataHere">No map data here</string>
-
-    <!-- Why the position marker is not on screen. Without these the app looks
-         broken: a missing marker is indistinguishable from a missing feature. -->
-    <string id="WaitingForGps">Searching for GPS</string>
-    <string id="PinsFull">No room to save that pin</string>
-    <string id="OutsideMap">You are outside this map</string>
+    <string id="AppName">EUR Run Map</string>
+    <string id="WaitingForGps">Searching GPS</string>
+    <string id="OutsideMap">Outside map</string>
     <string id="Start">Start</string>
     <string id="Pause">Pause</string>
     <string id="Resume">Resume</string>
@@ -15,50 +9,4 @@
     <string id="RetrySave">Retry save?</string>
     <string id="SaveFailed">Save failed</string>
     <string id="MapFailed">Map unavailable</string>
-
-    <!-- First-run card, shown over the map while the built-in demo pack is the
-         active map (see source/Onboarding.mc). One string per rendered line:
-         drawText does not wrap, so the breaks are part of the copy. Keep every
-         line at or under about 22 characters. FONT_XTINY is around 30 px on a
-         Venu 3, so a longer line runs off the side of a 390 px round screen
-         before it runs out of room on a 454 px one.
-         TipHold2 names the menu entry the reader has to go and find, so it has
-         to keep saying exactly what MenuCity says. -->
-    <string id="TipTitle">Demo map</string>
-    <string id="TipCity">This is not your city.</string>
-    <string id="TipHold1">Hold the screen and</string>
-    <string id="TipHold2">pick Change city.</string>
-    <string id="TipConnect1">Or set City in</string>
-    <string id="TipConnect2">Garmin Connect.</string>
-    <string id="TipDismiss">Tap to continue</string>
-
-    <string id="MenuTitle">Map</string>
-    <string id="MenuHeadingUp">Heading up</string>
-    <string id="MenuHeadingUpSub">Rotate the map as you turn</string>
-    <string id="MenuNight">Dark theme</string>
-    <string id="MenuNightSub">Easier on an AMOLED battery</string>
-    <string id="MenuPin">Drop pin here</string>
-    <string id="MenuPinSub">Saves the middle of the screen</string>
-    <string id="MenuPinsClear">Clear pins</string>
-    <string id="MenuStats">Show stats</string>
-    <string id="MenuAbout">About this pack</string>
-    <string id="MenuCity">Change city</string>
-    <string id="MenuCountry">Country</string>
-    <string id="CatalogueFailed">No cities found</string>
-
-    <!-- Where the app comes from, shown on the About screen. A repo slug, not
-         prose: leave it alone when translating. -->
-    <string id="SourceRepo">Chemaclass/garmin-offline-maps</string>
-
-    <!-- Phone-side settings, shown in Garmin Connect. -->
-    <string id="SettingLastCrash">Last crash</string>
-    <string id="SettingLastCrashPrompt">Written by the watch, not by you. Empty is good. If the app was ever killed, this names the step it died on. Connect IQ has no read-only field, so this one can be typed in; the watch overwrites it at the next launch after a crash. The same text also appears in red at the bottom of the map, which is the copy worth trusting.</string>
-    <string id="SettingCity">City</string>
-    <string id="SettingCityPrompt">Easier on the watch: hold the screen, then Change city. Or type a name from the catalogue, such as berlin. Leave empty for the built-in map.</string>
-    <string id="SettingCityBuiltIn">Built-in map</string>
-
-    <!-- Downloading a city. -->
-    <string id="Downloading">Downloading</string>
-    <string id="DownloadFailed">Download failed</string>
-    <string id="DownloadKeepPhone">Keep your phone nearby</string>
 </resources>

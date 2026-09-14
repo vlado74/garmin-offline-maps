@@ -2,29 +2,20 @@
 
 Notable changes to this project, newest first.
 
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
-versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ## [Unreleased]
+
+### Added
+
+- Offline raster maps at overview and street-detail scales for Forerunner 265S.
+- GPS-centred cyan breadcrumb and a compact time, distance, and average-pace band.
+- FIT street-running recording with pause, resume, save, discard, and failed-save retry.
+- English and Italian watch copy plus 360 px raster preview generation.
 
 ### Changed
 
-- **You can no longer zoom out past the point where the map is useful.** Zoomed
-  right out, a city carries almost nothing but water and a few motorway
-  fragments, which looked like a map with no streets in it. The zoom range now
-  starts where the streets do. The widest view is closer in than before, and
-  everything you can reach has a street network on it.
-
-### Fixed
-
-- **A pack could balloon far past the area you asked for.** Overpass returns a
-  way's whole geometry once any single point of it falls inside the query box,
-  so a river or a long road that only grazed the requested area arrived with
-  the rest of its length attached, and both the reported bounds and the tile
-  budget were spent on data far outside where you asked -- sometimes past the
-  resource-id ceiling, leaving the actual requested area thin or missing.
-  `make pack` now clips everything to the requested `--bbox`/`--city` region
-  before tiling. Only shows up on your next repack.
+- The watch runtime now loads pre-rendered 120 px bitmap cells instead of progressively drawing vector geometry.
+- Controls use physical keys only and the map remains north-up.
+- The public fixture is synthetic; personal map extents and generated packs stay local.
 
 ## [0.5.2] - 2026-08-09
 

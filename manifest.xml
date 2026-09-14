@@ -1,12 +1,4 @@
 <?xml version="1.0"?>
-<!--
-  Adding a device? Put its product id here, run `make pack` again if the new
-  screen is much bigger, and check docs/DEVICES.md first. Watch-app memory
-  differs a lot between models and the map buffer is the first thing to break.
-  Keep double hyphens out of this comment: they are illegal inside an XML
-  comment, and the SDK manager CLI that CI uses parses this file strictly even
-  though monkeyc does not.
--->
 <iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
     <iq:application
         id="846d5a3e7f114f88b1387ee15adb2afd"
@@ -15,33 +7,17 @@
         entry="OfflineMapsApp"
         launcherIcon="@Drawables.LauncherIcon"
         minApiLevel="4.0.0">
-
-        <!-- Every touch device at API 4.0+ with enough watch-app memory, in the
-             families this app targets. Two things gate the list, and neither is
-             GPS: panning is drag-only, so a device without a touchscreen cannot
-             pan; and Graphics.createBufferedBitmap is API 4.0.0, which is the
-             floor the code actually needs. docs/DEVICES.md has the survey and
-             the models this leaves out. -->
         <iq:products>
             <iq:product id="fr265s"/>
         </iq:products>
-
         <iq:permissions>
             <iq:uses-permission id="Positioning"/>
-            <iq:uses-permission id="Sensor"/>
             <iq:uses-permission id="Fit"/>
-            <!-- Only ever used to fetch a city the user picked in the phone
-                 settings. The map itself never needs the network. -->
-            <iq:uses-permission id="Communications"/>
         </iq:permissions>
-
-        <!-- To add a language, create resources-<code>/strings/strings.xml and
-             list that folder in monkey.jungle's resourcePath. -->
         <iq:languages>
             <iq:language>eng</iq:language>
             <iq:language>ita</iq:language>
         </iq:languages>
-
         <iq:barrels/>
     </iq:application>
 </iq:manifest>

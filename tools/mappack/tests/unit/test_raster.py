@@ -24,12 +24,12 @@ from mappack.raster import (  # noqa: E402
 from mappack import raster  # noqa: E402
 
 
-ROME = (12.4644720888, 41.8094001206, 12.5247529112, 41.8543156794)
+DEMO_BOUNDS = (13.3267, 52.495, 13.3997, 52.5317988)
 
 
 class TestRasterGrid(unittest.TestCase):
     def test_grid_is_anchored_to_120_pixel_world_cells(self):
-        grid = grid_for(ROME, 15)
+        grid = grid_for(DEMO_BOUNDS, 15)
 
         self.assertIsInstance(grid, RasterGrid)
         self.assertEqual(grid.tile_size, 120)
@@ -37,11 +37,11 @@ class TestRasterGrid(unittest.TestCase):
         self.assertEqual(grid.origin_y % 120, 0)
 
     def test_grid_covers_the_requested_bounds_at_both_scales(self):
-        west, south, east, north = ROME
+        west, south, east, north = DEMO_BOUNDS
 
         for zoom in (13, 15):
             with self.subTest(zoom=zoom):
-                grid = grid_for(ROME, zoom)
+                grid = grid_for(DEMO_BOUNDS, zoom)
                 grid_west, grid_south, grid_east, grid_north = cell_bounds(
                     grid, grid.cols - 1, grid.rows - 1
                 )
@@ -53,7 +53,7 @@ class TestRasterGrid(unittest.TestCase):
                 self.assertLessEqual(grid_south, south)
 
     def test_grid_cell_bounds_round_trip(self):
-        grid = grid_for(ROME, 13)
+        grid = grid_for(DEMO_BOUNDS, 13)
         west, south, east, north = cell_bounds(grid, 0, 0)
 
         self.assertLess(west, east)
@@ -70,9 +70,9 @@ class TestRasterGrid(unittest.TestCase):
 
 class TestVisibleCells(unittest.TestCase):
     def test_360_pixel_view_never_selects_more_than_sixteen_cells(self):
-        grid = grid_for(ROME, 15)
+        grid = grid_for(DEMO_BOUNDS, 15)
 
-        cells = visible_cells(grid, 12.4946125, 41.8318579, 360, 360)
+        cells = visible_cells(grid, 13.3632, 52.5133994, 360, 360)
 
         self.assertLessEqual(len(cells), 16)
 

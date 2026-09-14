@@ -24,24 +24,21 @@ jobs:
         working-directory: tools/mappack
         run: python -m unittest discover -s tests -t . -v
 
-      - name: Rebuild the demo pack and check it is committed unchanged
+      - name: Rebuild the raster demo and check it is committed unchanged
         run: |
-          make demo
-          git diff --exit-code -- mapdata/active source/generated/MapIndex.mc
+          make raster-demo
+          git diff --exit-code -- mapdata/raster-demo source/generated/RasterMapIndex.mc
 
       - name: Render preview images
-        working-directory: tools/mappack
         run: |
-          for z in 12 14 15 16 17; do
-            python -m mappack.preview --zoom "$z" --out "preview-z$z.png"
+          for z in 13 15; do
+            make raster-preview ZOOM="$z" OUTPUT="preview-z$z.png"
           done
-          python -m mappack.preview --zoom 15 --heading 40 --out preview-heading-up.png
-          python -m mappack.preview --zoom 15 --day --size 390 --out preview-venu3s-day.png
 
       - uses: actions/upload-artifact@v4
         with:
           name: map-previews
-          path: tools/mappack/preview-*.png
+          path: preview-*.png
 
   app:
     name: Connect IQ build
@@ -98,19 +95,10 @@ jobs:
         if: steps.creds.outputs.ready == 'true'
         run: make key
 
-      - name: Compile for every product in the manifest
+      - name: Compile for the Forerunner 265S
         if: steps.creds.outputs.ready == 'true'
         run: |
-          # Read the list from the manifest rather than repeating it here --
-          # the two drifted apart once already, and the SDK manager step above
-          # downloads device definitions straight from the same file.
-          devices=$(grep -o 'iq:product id="[^"]*"' manifest.xml | cut -d'"' -f2)
-          echo "Building for: $devices"
-          for device in $devices; do
-            echo "::group::$device"
-            make build DEVICE="$device"
-            echo "::endgroup::"
-          done
+          make build DEVICE=fr265s
 
       - name: Build the store bundle
         if: steps.creds.outputs.ready == 'true'

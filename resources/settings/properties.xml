@@ -1,9 +1,0 @@
-<!-- Hand-written since the on-watch city download went away.
-
-     tools/mappack's publish step used to generate this, because the city
-     dropdown had to list what the catalogue carried. A city is a build now
-     (cities.json, make city), so there is nothing left to generate: what
-     remains is one key the app writes itself. -->
-<properties>
-    <property id="lastCrash" type="string"></property>
-</properties>

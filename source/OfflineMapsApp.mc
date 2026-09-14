@@ -19,8 +19,6 @@ class OfflineMapsApp extends Application.AppBase {
     }
 
     function onStart(state) {
-        Diag.recoverCrash();
-        Diag.arm();
         _store = new RasterTileStore();
         _trail = new RunTrail();
         _controller = new RunController();
@@ -64,6 +62,5 @@ class OfflineMapsApp extends Application.AppBase {
         if (_controller != null) { _controller.shutdown(); }
         if (_view != null) { _view.release(); }
         if (_store != null) { _store.clear(); }
-        Diag.disarm();
     }
 }

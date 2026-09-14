@@ -30,21 +30,11 @@ preview*.png
 *.osm.cache
 tools/mappack/*.osm
 
-# The demo pack IS committed so the repo builds out of the box. A personal
-# pack overwrites mapdata/active/ on disk (make build reads nothing else), so
-# this only keeps the new block files it adds out of `git status`/`git add -A`;
-# the demo files already tracked still show as modified until `make demo`
-# restores them -- see docs/PACKER.md.
-mapdata/active/
 .DS_Store
 
 # Isolated implementation workspaces
 .worktrees/
 
-# Personal packs built alongside the committed demo
-mapdata/berlin/
+# Personal raster packs built alongside the synthetic demo
 mapdata/raster/
 !mapdata/raster-demo/
-
-# Local city catalogue for `make catalogue`
-.catalogue/

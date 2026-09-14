@@ -1,6 +1,6 @@
 project.manifest = manifest.xml
 
 base.sourcePath = source
-base.resourcePath = resources;mapdata/active;mapdata/raster-demo
+base.resourcePath = resources;mapdata/raster-demo
 
 fr265s.resourcePath = $(fr265s.resourcePath);resources-icon60

@@ -129,13 +129,13 @@ class TestRunTrail(unittest.TestCase):
 
     def test_jitter_and_jump_are_rejected(self):
         trail = TrailModel(self.source)
-        self.assertTrue(trail.add(41.8318579, 12.4946125))
-        self.assertFalse(trail.add(41.8318679, 12.4946125))  # about 1.1 m
-        self.assertFalse(trail.add(41.8345579, 12.4946125))  # about 300 m
+        self.assertTrue(trail.add(52.5133994, 13.3632))
+        self.assertFalse(trail.add(52.5134094, 13.3632))  # about 1.1 m
+        self.assertFalse(trail.add(52.5160994, 13.3632))  # about 300 m
 
     def test_compaction_is_bounded_and_keeps_ends(self):
         trail = TrailModel(self.source)
-        first = (41.8318579, 12.4946125)
+        first = (52.5133994, 13.3632)
         trail.add(*first)
         largest = 0
         for index in range(1, 700):
@@ -173,7 +173,7 @@ class TestRunTrail(unittest.TestCase):
     def test_scale_changes_projection_not_stored_coordinates(self):
         trail = TrailModel(self.source)
         point = (41.8320, 12.4950)
-        centre = (41.8318579, 12.4946125)
+        centre = (52.5133994, 13.3632)
         trail.add(*point)
         stored = trail.points[:]
         self.assertNotEqual(project(point, centre, 13), project(point, centre, 15))

@@ -1,8 +1,6 @@
 <resources>
-    <string id="AppName">Mappe EUR</string>
-    <string id="NoDataHere">Nessun dato mappa</string>
+    <string id="AppName">Mappa Corsa EUR</string>
     <string id="WaitingForGps">Ricerca GPS</string>
-    <string id="PinsFull">Spazio segnaposti esaurito</string>
     <string id="OutsideMap">Fuori mappa</string>
     <string id="Start">Avvia</string>
     <string id="Pause">Pausa</string>
@@ -11,33 +9,4 @@
     <string id="RetrySave">Riprova salvataggio?</string>
     <string id="SaveFailed">Salvataggio fallito</string>
     <string id="MapFailed">Mappa non disponibile</string>
-    <string id="TipTitle">Mappa demo</string>
-    <string id="TipCity">Questa non è la tua città.</string>
-    <string id="TipHold1">Tieni premuto e</string>
-    <string id="TipHold2">scegli Cambia città.</string>
-    <string id="TipConnect1">Oppure imposta Città</string>
-    <string id="TipConnect2">in Garmin Connect.</string>
-    <string id="TipDismiss">Tocca per continuare</string>
-    <string id="MenuTitle">Mappa</string>
-    <string id="MenuHeadingUp">Direzione in alto</string>
-    <string id="MenuHeadingUpSub">Ruota mentre ti giri</string>
-    <string id="MenuNight">Tema scuro</string>
-    <string id="MenuNightSub">Riduce i consumi AMOLED</string>
-    <string id="MenuPin">Aggiungi segnaposto</string>
-    <string id="MenuPinSub">Salva il centro schermo</string>
-    <string id="MenuPinsClear">Cancella segnaposti</string>
-    <string id="MenuStats">Mostra statistiche</string>
-    <string id="MenuAbout">Informazioni mappa</string>
-    <string id="MenuCity">Cambia città</string>
-    <string id="MenuCountry">Paese</string>
-    <string id="CatalogueFailed">Nessuna città trovata</string>
-    <string id="SourceRepo">Chemaclass/garmin-offline-maps</string>
-    <string id="SettingLastCrash">Ultimo arresto</string>
-    <string id="SettingLastCrashPrompt">Campo diagnostico gestito automaticamente dall'orologio.</string>
-    <string id="SettingCity">Città</string>
-    <string id="SettingCityPrompt">Scegli una città disponibile o lascia vuoto per la mappa integrata.</string>
-    <string id="SettingCityBuiltIn">Mappa integrata</string>
-    <string id="Downloading">Download</string>
-    <string id="DownloadFailed">Download fallito</string>
-    <string id="DownloadKeepPhone">Tieni vicino il telefono</string>
 </resources>

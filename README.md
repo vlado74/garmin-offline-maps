@@ -1,123 +1,64 @@
-# Offline Maps for Garmin
+# EUR Run Map for Garmin Forerunner 265S
 
-A pannable, zoomable map for Garmin watches that ship no cartography of their
-own: 24 of them, across the **Venu**, **Venu Sq**, **vívoactive** and
-**Forerunner** families. No phone, no network, no subscription: the map is
-compiled into the app.
+A small Connect IQ watch app that keeps an offline street map under your live
+GPS position while recording a run. The map is pre-rendered on a computer and
+compiled into the app, so drawing on the watch is immediate and needs no phone,
+network connection, or subscription.
 
-<p align="center">
-  <img src="docs/img/preview-z14.png" width="220" alt="City overview">
-  <img src="docs/img/preview-z16.png" width="220" alt="Street level">
-  <img src="docs/img/preview-heading-up.png" width="220" alt="Heading-up mode">
-</p>
+The public repository ships a synthetic Berlin fixture. Personal map packs,
+coordinates, signing keys, previews, and `.prg` files are ignored by Git.
 
-<sub>Rendered from the bundled demo pack by <code>tools/mappack</code>'s preview
-renderer, a Python re-implementation of the on-watch drawing code.</sub>
+## What the watch shows
 
----
+- north-up map, always centred on the latest usable GPS fix;
+- overview at zoom 13 and street detail at zoom 15;
+- a cyan breadcrumb sampled every 5 m and bounded to 512 points;
+- elapsed time, distance in kilometres, and average pace in min/km;
+- clear GPS, map, recording, pause, and save-failure states;
+- a FIT street-running activity that synchronizes through Garmin Connect.
 
-## Why
+Only physical keys change state:
 
-The Venu 3 is a capable watch with no map. Garmin's own cartography is not
-available for it (`WatchUi.MapView` is unsupported on this device), and the
-Connect IQ map apps that exist stream raster tiles, so they need your phone in
-range, an internet connection, and usually a subscription.
+| Key | Action |
+|---|---|
+| START/STOP | start, pause, or resume the same activity |
+| UP | detailed map |
+| DOWN | overview map |
+| BACK | save/discard confirmation when a session exists |
 
-This takes the other road: **vector map data, quantised and compiled into the
-app**. Once installed it works in a tunnel, on a plane, or abroad with the phone
-at the hotel.
+## Build the demo
 
-## What it does
-
-- Pan by dragging, zoom with on-screen buttons, over the whole packed region
-- **Follow me**: recentres on every GPS fix; one tap to re-engage after panning
-- **North-up or heading-up**: the map turns with you, with a north arrow
-- Roads by class, water, rivers, parks and forests, railways, paths
-- Scale bar, dark and light themes, position marker with a heading wedge
-- All offline, from a pack you build for your own area
-
-## Quick start
-
-Needs the [Connect IQ SDK](https://developer.garmin.com/connect-iq/sdk/) (free
-Garmin account) and Python 3.9+. `make doctor` reports anything missing.
+Install the [Connect IQ SDK](https://developer.garmin.com/connect-iq/sdk/) and
+Python 3.9+ with Pillow, then:
 
 ```bash
-git clone https://github.com/Chemaclass/garmin-offline-maps.git
-cd garmin-offline-maps
-
-make key      # one-off signing key, kept out of git
-make build    # compiles with the bundled demo map
-make sim      # opens the simulator and side-loads it
-make watch    # or straight onto a watch on USB
-```
-
-The simulator wants an SDK **9.1.x** specifically: 9.2.0's segfaults on macOS 26
-the moment anything draws. The toolchain, and the rest of what that costs you,
-in [CONTRIBUTING.md § Setup](CONTRIBUTING.md#setup).
-
-Then swap the demo for where you actually live, by name:
-
-```bash
-make pack CITY="Madrid"      # or Murcia, Hamburg, New York, ...
+make key
+make test
 make build
 ```
 
-That geocodes the name, pulls just the features the renderer draws from
-[Overpass](https://overpass-api.de/), and packs 12 km around the centre.
-`RADIUS_KM=10` for more, `CITY_INDEX=1` when a name is ambiguous. It prints
-every match it found. `BBOX=west,south,east,north` still takes an exact region,
-and `INPUT=…` a [Geofabrik](https://download.geofabrik.de/) extract.
+The result is `bin/offline-maps.prg`, built only for `fr265s`.
 
-The packer prints a size report. Read it: an over-budget pack produces an app
-that will not install, and **[docs/PACKER.md](docs/PACKER.md#budgets)** has the
-ceilings and the tuning knobs in the order to reach for them.
+## Build a private map
 
-## How it works
+Choose a bounding box as `west,south,east,north`. A 5 km diameter needs a 2.5 km
+radius around the chosen centre.
 
-There is no runtime data path, no network, no filesystem, no companion app.
-That shape is forced by four measured limits: 768 KB of app RAM, ~128 KB of
-key-value storage, no filesystem API, and under 1 KB/s over BLE.
+```bash
+make raster-pack RASTER_BBOX="west,south,east,north" RASTER_NAME="My running map"
+make raster-preview PACK=mapdata/raster ZOOM=13 OUTPUT=overview.png
+make raster-preview PACK=mapdata/raster ZOOM=15 OUTPUT=detail.png
+```
 
-Three moving parts: `tools/mappack/` (Python, tested), `source/` (Monkey C,
-needs the SDK), and a byte format that three implementations must agree on.
+After inspecting both previews, temporarily change `mapdata/raster-demo` to
+`mapdata/raster` in `monkey.jungle` and run `make build`. Do not commit that path
+change or `source/generated/RasterMapIndex.mc`: both reveal the personal map
+extent. [docs/PACKER.md](docs/PACKER.md) describes the pack and checks.
 
-**[docs/](docs/README.md)** is the index: the pipeline in 30 seconds, then
-architecture, rendering, packer, format, devices, development and publishing.
+## Map data and attribution
 
-## Contributing
+The renderer uses OpenStreetMap data. Generated maps are derivative databases
+under the ODbL and the watch displays `(c) OSM`. See the
+[OpenStreetMap copyright page](https://www.openstreetmap.org/copyright).
 
-Most of the interesting work (the packer, the byte format, the look of the map)
-needs nothing but `python3`; only `source/` needs a Garmin toolchain. `make
-test` runs 131 tests without the SDK.
-
-Start at **[CONTRIBUTING.md](CONTRIBUTING.md)**. Adding a watch model is a good
-first change: see [docs/DEVICES.md](docs/DEVICES.md#adding-another-device).
-
-## Licence and attribution
-
-Code is MIT. See [LICENSE](LICENSE).
-
-Map data is **not** covered by it. Packs built from OpenStreetMap are derived
-works under the [ODbL](https://opendatacommons.org/licenses/odbl/) and must
-credit "© OpenStreetMap contributors"; the app carries that in its About screen
-and the packer writes it into every pack. Pack a different source and you set
-`--attribution` and check that source's terms yourself. Garmin's review
-guidelines put the licensing burden on you.
-
-## Status
-
-[CHANGELOG.md](CHANGELOG.md) lists what exists today; the current release is
-`v0.3.19`. The packer, format and rendering maths are covered by tests; the
-Monkey C compiles for all 24 products, runs in the simulator, runs on a Venu 3,
-and is in the Connect IQ store.
-
-## Roadmap
-
-- [x] Connect IQ store release
-- [x] Downloadable cities, so one install covers more than one place
-- [ ] On-watch timing measurements (frame times are measured in the simulator,
-      not on the wrist)
-- [ ] Waypoints: drop, save, bearing and distance
-- [ ] Route overlay from a GPX packed alongside the map
-- [ ] Place-name labels (needs a text layer in the format)
-- [ ] Widget/glance entry point
+Code is MIT licensed; see [LICENSE](LICENSE).
