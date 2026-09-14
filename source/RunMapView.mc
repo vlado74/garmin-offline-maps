@@ -7,6 +7,8 @@ import Toybox.WatchUi;
 class RunMapView extends WatchUi.View {
     const DATA_BAND_HEIGHT = 52;
     const DATA_ROW_Y = 52;
+    const DATA_TOP_ROW_Y = 30;
+    const DATA_BOTTOM_ROW_Y = 58;
     const DATA_BAND_VISIBLE_MS = 8000;
     const LABEL_BUTTON_OFFSET = 68;
     const LABEL_BUTTON_RADIUS = 22;
@@ -239,9 +241,9 @@ class RunMapView extends WatchUi.View {
         if (_gpsReady) { drawMarker(dc); }
         drawNorthIndicator(dc);
         drawScaleBar(dc);
-        drawStatus(dc);
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
         if (_showDataBand) { drawDataBand(dc); }
+        drawStatus(dc);
         if (_showLapDetails) { drawLapDetails(dc); }
         drawLapButton(dc);
         drawMarkerModeButton(dc);
@@ -452,15 +454,22 @@ class RunMapView extends WatchUi.View {
 
     hidden function drawDataBand(dc) {
         dc.setColor(RunStyle.BAND, RunStyle.BAND);
-        dc.fillRectangle(0, 26, _width, DATA_BAND_HEIGHT);
+        dc.fillPolygon([
+            [96, 26],
+            [132, 10],
+            [_width - 82, 10],
+            [_width - 22, 48],
+            [_width - 38, 82],
+            [96, 82]
+        ]);
         dc.setColor(RunStyle.BAND_TEXT, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(90, DATA_ROW_Y, Graphics.FONT_XTINY,
+        dc.drawText(218, DATA_TOP_ROW_Y, Graphics.FONT_XTINY,
                     formatTimer(_controller.timerMs()),
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(_width / 2, DATA_ROW_Y, Graphics.FONT_XTINY,
+        dc.drawText(158, DATA_BOTTOM_ROW_Y, Graphics.FONT_XTINY,
                     formatDistance(_controller.distanceMetres()),
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(_width - 90, DATA_ROW_Y, Graphics.FONT_XTINY,
+        dc.drawText(260, DATA_BOTTOM_ROW_Y, Graphics.FONT_XTINY,
                     formatPace(_controller.averagePaceSeconds()),
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
@@ -491,7 +500,7 @@ class RunMapView extends WatchUi.View {
             colour = RunStyle.READY;
         }
         dc.setColor(colour, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(_width / 2, 80, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, 86, Graphics.FONT_XTINY,
                     text, Graphics.TEXT_JUSTIFY_CENTER);
     }
 

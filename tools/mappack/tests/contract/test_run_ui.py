@@ -77,6 +77,8 @@ class TestRunUi(unittest.TestCase):
         view = source("RunMapView.mc")
         self.assertIn("const DATA_BAND_HEIGHT = 52", view)
         self.assertIn("const DATA_ROW_Y = 52", view)
+        self.assertIn("const DATA_TOP_ROW_Y = 30", view)
+        self.assertIn("const DATA_BOTTOM_ROW_Y = 58", view)
         self.assertIn("function toggleDataBand()", view)
         self.assertIn("const DATA_BAND_VISIBLE_MS = 8000", view)
         self.assertIn("function updateDataBandVisibility()", view)
@@ -122,6 +124,11 @@ class TestRunUi(unittest.TestCase):
         self.assertIn("timerMs()", view)
         self.assertIn("distanceMetres()", view)
         self.assertIn("averagePaceSeconds()", view)
+        data_band = view.split("function drawDataBand(dc)", 1)[1].split("function", 1)[0]
+        self.assertIn("dc.fillPolygon", data_band)
+        self.assertIn("DATA_TOP_ROW_Y", data_band)
+        self.assertIn("DATA_BOTTOM_ROW_Y", data_band)
+        self.assertNotIn("fillRectangle(0, 26", data_band)
         for resource in ("Start", "Pause", "SaveFailed", "OutsideMap", "WaitingForGps"):
             self.assertIn(f"Rez.Strings.{resource}", view)
         self.assertIn('+ " km"', view)
