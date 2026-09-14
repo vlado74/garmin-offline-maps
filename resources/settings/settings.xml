@@ -31,6 +31,9 @@
             <listEntry value="0x000000">@Strings.ColorBlack</listEntry>
             <listEntry value="0x001F4D">@Strings.ColorDarkBlue</listEntry>
             <listEntry value="0x555555">@Strings.ColorDarkGray</listEntry>
+            <listEntry value="0x004D28">@Strings.ColorDarkGreen</listEntry>
+            <listEntry value="0x4D001F">@Strings.ColorBurgundy</listEntry>
+            <listEntry value="0x30004D">@Strings.ColorDarkPurple</listEntry>
         </settingConfig>
     </setting>
     <setting propertyKey="@Properties.AutoLapDetails" title="@Strings.SettingAutoLapDetails">

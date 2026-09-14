@@ -53,6 +53,9 @@ class RunSettingsMenu extends WatchUi.Menu2 {
     function backgroundLabel(color) {
         if (color == 0x001F4D) { return WatchUi.loadResource(Rez.Strings.ColorDarkBlue); }
         if (color == 0x555555) { return WatchUi.loadResource(Rez.Strings.ColorDarkGray); }
+        if (color == 0x004D28) { return WatchUi.loadResource(Rez.Strings.ColorDarkGreen); }
+        if (color == 0x4D001F) { return WatchUi.loadResource(Rez.Strings.ColorBurgundy); }
+        if (color == 0x30004D) { return WatchUi.loadResource(Rez.Strings.ColorDarkPurple); }
         return WatchUi.loadResource(Rez.Strings.ColorBlack);
     }
 
@@ -124,12 +127,18 @@ class RunSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
     hidden function backgroundLabel(color) {
         if (color == 0x001F4D) { return WatchUi.loadResource(Rez.Strings.ColorDarkBlue); }
         if (color == 0x555555) { return WatchUi.loadResource(Rez.Strings.ColorDarkGray); }
+        if (color == 0x004D28) { return WatchUi.loadResource(Rez.Strings.ColorDarkGreen); }
+        if (color == 0x4D001F) { return WatchUi.loadResource(Rez.Strings.ColorBurgundy); }
+        if (color == 0x30004D) { return WatchUi.loadResource(Rez.Strings.ColorDarkPurple); }
         return WatchUi.loadResource(Rez.Strings.ColorBlack);
     }
 
     hidden function nextBackground(color) {
         if (color == 0x000000) { return 0x001F4D; }
         if (color == 0x001F4D) { return 0x555555; }
+        if (color == 0x555555) { return 0x004D28; }
+        if (color == 0x004D28) { return 0x4D001F; }
+        if (color == 0x4D001F) { return 0x30004D; }
         return 0x000000;
     }
 

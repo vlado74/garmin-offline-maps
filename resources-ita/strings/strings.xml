@@ -18,15 +18,15 @@
     <string id="TotalTime">Tempo</string>
     <string id="TotalDistance">Distanza</string>
     <string id="AveragePace">Passo medio</string>
-    <string id="SettingLapButton">Mostra pulsante G</string>
-    <string id="SettingMarkerButton">Mostra pulsante .5/KM</string>
-    <string id="SettingLabelButton">Mostra pulsante Aa</string>
-    <string id="SettingStreetLabels">Mostra nomi vie</string>
-    <string id="SettingMarkers">Marcatori distanza</string>
-    <string id="SettingTextColor">Colore testo dettagli</string>
-    <string id="SettingBackgroundColor">Sfondo dettagli</string>
-    <string id="SettingAutoLapDetails">Dettagli dopo il giro</string>
-    <string id="SettingDetailDuration">Durata dettagli automatici</string>
+    <string id="SettingLapButton">Tasto G</string>
+    <string id="SettingMarkerButton">Tasto .5/KM</string>
+    <string id="SettingLabelButton">Tasto Aa</string>
+    <string id="SettingStreetLabels">Nomi vie</string>
+    <string id="SettingMarkers">Marcatori</string>
+    <string id="SettingTextColor">Colore testo</string>
+    <string id="SettingBackgroundColor">Sfondo dati</string>
+    <string id="SettingAutoLapDetails">Dettagli giro</string>
+    <string id="SettingDetailDuration">Durata popup</string>
     <string id="MarkersAll">500 m e km</string>
     <string id="MarkersKm">Solo chilometri</string>
     <string id="MarkersHidden">Nascosti</string>
@@ -36,7 +36,10 @@
     <string id="ColorBlack">Nero</string>
     <string id="ColorDarkBlue">Blu scuro</string>
     <string id="ColorDarkGray">Grigio scuro</string>
-    <string id="SettingsTitle">Impostazioni</string>
+    <string id="ColorDarkGreen">Verde scuro</string>
+    <string id="ColorBurgundy">Bordeaux</string>
+    <string id="ColorDarkPurple">Viola scuro</string>
+    <string id="SettingsTitle">Opzioni</string>
     <string id="Enabled">Sì</string>
     <string id="Disabled">No</string>
 </resources>

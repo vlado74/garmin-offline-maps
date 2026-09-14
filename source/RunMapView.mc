@@ -319,26 +319,26 @@ class RunMapView extends WatchUi.View {
         dc.setColor(_detailBackgroundColor, _detailBackgroundColor);
         dc.fillRectangle(0, 0, _width, _height);
         dc.setColor(_detailTextColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(_width / 2, 24, Graphics.FONT_SMALL,
+        dc.drawText(_width / 2, 45, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.TotalTime) + "  "
                     + formatTimer(_controller.timerMs()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, 61, Graphics.FONT_SMALL,
+        dc.drawText(_width / 2, 78, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.TotalDistance) + "  "
                     + formatDistance(_controller.distanceMetres()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, 98, Graphics.FONT_SMALL,
+        dc.drawText(_width / 2, 111, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.AveragePace) + "  "
                     + formatPace(_controller.averagePaceSeconds()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawLine(58, 140, _width - 58, 140);
-        dc.drawText(_width / 2, 150, Graphics.FONT_SMALL,
+        dc.drawLine(58, 147, _width - 58, 147);
+        dc.drawText(_width / 2, 159, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.Laps) + "  "
                     + _laps.count().format("%d"), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, 183, Graphics.FONT_SMALL,
+        dc.drawText(_width / 2, 192, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.LastLap) + "  "
                     + formatLapTime(_laps.lastTimeMs()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, 216, Graphics.FONT_SMALL,
+        dc.drawText(_width / 2, 225, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.LapDistance) + "  "
                     + formatDistance(_laps.lastDistanceMetres()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, 249, Graphics.FONT_SMALL,
+        dc.drawText(_width / 2, 258, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.LapPace) + "  "
                     + formatPace(_laps.lastPaceSeconds()), Graphics.TEXT_JUSTIFY_CENTER);
     }

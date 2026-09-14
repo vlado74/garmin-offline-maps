@@ -18,15 +18,15 @@
     <string id="TotalTime">Time</string>
     <string id="TotalDistance">Distance</string>
     <string id="AveragePace">Average pace</string>
-    <string id="SettingLapButton">Show G button</string>
-    <string id="SettingMarkerButton">Show .5/KM button</string>
-    <string id="SettingLabelButton">Show Aa button</string>
-    <string id="SettingStreetLabels">Show street names</string>
-    <string id="SettingMarkers">Distance markers</string>
-    <string id="SettingTextColor">Details text color</string>
-    <string id="SettingBackgroundColor">Details background</string>
-    <string id="SettingAutoLapDetails">Show details after lap</string>
-    <string id="SettingDetailDuration">Automatic detail duration</string>
+    <string id="SettingLapButton">G button</string>
+    <string id="SettingMarkerButton">.5/KM button</string>
+    <string id="SettingLabelButton">Aa button</string>
+    <string id="SettingStreetLabels">Street names</string>
+    <string id="SettingMarkers">Markers</string>
+    <string id="SettingTextColor">Text color</string>
+    <string id="SettingBackgroundColor">Data background</string>
+    <string id="SettingAutoLapDetails">Lap details</string>
+    <string id="SettingDetailDuration">Popup duration</string>
     <string id="MarkersAll">500 m and km</string>
     <string id="MarkersKm">Kilometres only</string>
     <string id="MarkersHidden">Hidden</string>
@@ -36,7 +36,10 @@
     <string id="ColorBlack">Black</string>
     <string id="ColorDarkBlue">Dark blue</string>
     <string id="ColorDarkGray">Dark gray</string>
-    <string id="SettingsTitle">Settings</string>
+    <string id="ColorDarkGreen">Dark green</string>
+    <string id="ColorBurgundy">Burgundy</string>
+    <string id="ColorDarkPurple">Dark purple</string>
+    <string id="SettingsTitle">Options</string>
     <string id="Enabled">On</string>
     <string id="Disabled">Off</string>
 </resources>

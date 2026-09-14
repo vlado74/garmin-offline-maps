@@ -123,6 +123,7 @@ class TestRunUi(unittest.TestCase):
         details = view.split("function drawLapDetails(dc)", 1)[1].split("function", 1)[0]
         self.assertIn("fillRectangle(0, 0, _width, _height)", details)
         self.assertIn("Graphics.FONT_SMALL", details)
+        self.assertIn("_width / 2, 45", details)
         self.assertIn("timerMs()", details)
         self.assertIn("distanceMetres()", details)
         self.assertIn("averagePaceSeconds()", details)
@@ -143,6 +144,15 @@ class TestRunUi(unittest.TestCase):
         self.assertEqual("Fuori mappa", italian["OutsideMap"])
         self.assertEqual("Ricerca GPS", italian["WaitingForGps"])
         self.assertEqual("Tocca per GPS", italian["TapToRecenter"])
+        self.assertEqual("Opzioni", italian["SettingsTitle"])
+        self.assertEqual("Tasto G", italian["SettingLapButton"])
+        self.assertEqual("Tasto .5/KM", italian["SettingMarkerButton"])
+        self.assertEqual("Tasto Aa", italian["SettingLabelButton"])
+        self.assertEqual("Nomi vie", italian["SettingStreetLabels"])
+        self.assertEqual("Durata popup", italian["SettingDetailDuration"])
+        self.assertEqual("Verde scuro", italian["ColorDarkGreen"])
+        self.assertEqual("Bordeaux", italian["ColorBurgundy"])
+        self.assertEqual("Viola scuro", italian["ColorDarkPurple"])
 
     def test_native_app_settings_control_the_runtime_ui(self):
         properties = ET.parse(ROOT / "resources/properties.xml").getroot()
