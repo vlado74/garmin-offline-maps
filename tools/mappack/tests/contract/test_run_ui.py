@@ -94,6 +94,11 @@ class TestRunUi(unittest.TestCase):
         self.assertIn("StreetLabelOverlay.draw", view)
         self.assertIn("function handleTap(x, y)", view)
         self.assertIn("function drawStreetLabelButton(dc)", view)
+        self.assertIn("function drawMarkerModeButton(dc)", view)
+        self.assertIn("function drawScaleBar(dc)", view)
+        self.assertIn("function drawNorthIndicator(dc)", view)
+        self.assertIn("_markerMode", view)
+        self.assertRegex(view, r"_markerMode\s*=\s*\(_markerMode \+ 1\) % 3")
         self.assertIn("_showStreetLabels", view)
         self.assertRegex(view, r"if \(_showStreetLabels\)[\s\S]*?StreetLabelOverlay\.draw")
         handle_tap = view.split("function handleTap(x, y)", 1)[1].split("function", 1)[0]

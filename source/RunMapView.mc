@@ -34,6 +34,7 @@ class RunMapView extends WatchUi.View {
     hidden var _showStreetLabels;
     hidden var _showLapDetails;
     hidden var _lapDetailsHideAt;
+    hidden var _markerMode;
 
     function initialize(store, trail, controller, laps) {
         View.initialize();
@@ -58,6 +59,7 @@ class RunMapView extends WatchUi.View {
         _showStreetLabels = true;
         _showLapDetails = false;
         _lapDetailsHideAt = null;
+        _markerMode = MarkerMode.ALL;
     }
 
     function onLayout(dc) {
@@ -196,6 +198,14 @@ class RunMapView extends WatchUi.View {
             WatchUi.requestUpdate();
             return true;
         }
+        var markerDx = x - (_width / 2);
+        var markerDy = y - buttonY;
+        if (markerDx >= -LABEL_BUTTON_HIT_RADIUS && markerDx <= LABEL_BUTTON_HIT_RADIUS
+            && markerDy >= -LABEL_BUTTON_HIT_RADIUS && markerDy <= LABEL_BUTTON_HIT_RADIUS) {
+            _markerMode = (_markerMode + 1) % 3;
+            WatchUi.requestUpdate();
+            return true;
+        }
         var buttonX = _width - LABEL_BUTTON_OFFSET;
         var dx = x - buttonX;
         var dy = y - buttonY;
@@ -220,16 +230,68 @@ class RunMapView extends WatchUi.View {
         if (_showStreetLabels) {
             StreetLabelOverlay.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
         }
-        _trail.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
+        _trail.draw(dc, _centreLat, _centreLon, _zoom, _width, _height,
+                    _markerMode);
         drawLapMarker(dc);
         drawHomeMarker(dc);
         if (_gpsReady) { drawMarker(dc); }
+        drawNorthIndicator(dc);
+        drawScaleBar(dc);
         drawStatus(dc);
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
         if (_showDataBand) { drawDataBand(dc); }
         if (_showLapDetails) { drawLapDetails(dc); }
         drawLapButton(dc);
+        drawMarkerModeButton(dc);
         drawStreetLabelButton(dc);
+    }
+
+    hidden function drawMarkerModeButton(dc) {
+        var x = _width / 2;
+        var y = _height - LABEL_BUTTON_OFFSET;
+        dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(x, y, LABEL_BUTTON_RADIUS);
+        dc.setColor(_markerMode == MarkerMode.HIDDEN
+                    ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_WHITE,
+                    Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(x, y, LABEL_BUTTON_RADIUS - 3);
+        dc.setColor(_markerMode == MarkerMode.HIDDEN
+                    ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK,
+                    Graphics.COLOR_TRANSPARENT);
+        var text = _markerMode == MarkerMode.ALL ? ".5"
+                   : (_markerMode == MarkerMode.KM_ONLY ? "KM" : "--");
+        dc.drawText(x, y, Graphics.FONT_XTINY, text,
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    hidden function drawNorthIndicator(dc) {
+        var x = _width / 2;
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.fillPolygon([[x, 12], [x - 6, 25], [x + 6, 25]]);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.fillPolygon([[x, 15], [x - 3, 23], [x + 3, 23]]);
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(x, 0, Graphics.FONT_XTINY, "N", Graphics.TEXT_JUSTIFY_CENTER);
+    }
+
+    hidden function drawScaleBar(dc) {
+        var metres = _zoom == RasterPack.OVERVIEW ? 1000
+                     : (_zoom == RasterPack.DETAIL ? 200 : 100);
+        var pixels = (metres / Mercator.metresPerPixel(_centreLat, _zoom)).toNumber();
+        var left = (_width - pixels) / 2;
+        var right = left + pixels;
+        var y = _height - 24;
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(4);
+        dc.drawLine(left, y, right, y);
+        dc.drawLine(left, y - 5, left, y + 5);
+        dc.drawLine(right, y - 5, right, y + 5);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        dc.drawLine(left, y, right, y);
+        dc.drawText(_width / 2, y - 22, Graphics.FONT_XTINY,
+                    metres >= 1000 ? "1 km" : metres.format("%d") + " m",
+                    Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     hidden function drawLapButton(dc) {
@@ -308,11 +370,11 @@ class RunMapView extends WatchUi.View {
     hidden function drawAttribution(dc) {
         dc.setColor(RunStyle.DIM, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
-            _width / 2,
-            _height - 18,
+            8,
+            _height / 2,
             Graphics.FONT_XTINY,
             "(c) OSM",
-            Graphics.TEXT_JUSTIFY_CENTER
+            Graphics.TEXT_JUSTIFY_LEFT
         );
     }
 

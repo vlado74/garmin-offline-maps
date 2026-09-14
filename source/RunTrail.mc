@@ -83,7 +83,7 @@ class RunTrail {
     }
 
     //! Project retained geographic coordinates at the current display scale.
-    function draw(dc, centreLat, centreLon, zoom, width, height) {
+    function draw(dc, centreLat, centreLon, zoom, width, height, markerMode) {
         if (_lats.size() < 2) { return; }
 
         var centreX = Mercator.lonToWorldX(centreLon, zoom);
@@ -98,7 +98,8 @@ class RunTrail {
                  width, height, _lapStartIndex, _lats.size());
         drawPass(dc, 3, 0x00D7FF, centreX, centreY, zoom,
                  width, height, _lapStartIndex, _lats.size());
-        drawKilometreMarkers(dc, centreX, centreY, zoom, width, height);
+        drawKilometreMarkers(dc, centreX, centreY, zoom, width, height,
+                             markerMode);
     }
 
     //! Place every crossed whole kilometre between the surrounding GPS fixes.
@@ -109,8 +110,8 @@ class RunTrail {
         }
         var nextKm = _kmNumbers.size() == 0
                      ? 1 : _kmNumbers[_kmNumbers.size() - 1] + 1;
-        while (nextKm * 1000.0d <= toDistance) {
-            var fraction = (nextKm * 1000.0d - fromDistance)
+        while (nextKm * 500.0d <= toDistance) {
+            var fraction = (nextKm * 500.0d - fromDistance)
                            / (toDistance - fromDistance);
             if (fraction < 0.0d) { fraction = 0.0d; }
             if (fraction > 1.0d) { fraction = 1.0d; }
@@ -127,10 +128,13 @@ class RunTrail {
     }
 
     hidden function drawKilometreMarkers(dc, centreX, centreY, zoom,
-                                         width, height) {
+                                         width, height, markerMode) {
+        if (markerMode == MarkerMode.HIDDEN) { return; }
         var start = _kmNumbers.size() - MAX_DRAWN_KM_MARKERS;
         if (start < 0) { start = 0; }
         for (var i = start; i < _kmNumbers.size(); i += 1) {
+            var isWholeKm = (_kmNumbers[i] % 2) == 0;
+            if (!isWholeKm && markerMode == MarkerMode.KM_ONLY) { continue; }
             var x = width / 2.0d + Mercator.lonToWorldX(_kmLons[i], zoom) - centreX;
             var y = height / 2.0d + Mercator.latToWorldY(_kmLats[i], zoom) - centreY;
             if (x < -12 || x > width + 12 || y < -12 || y > height + 12) {
@@ -139,12 +143,14 @@ class RunTrail {
             var px = x.toNumber();
             var py = y.toNumber();
             dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(px, py, 10);
-            dc.setColor(0xFFFF00, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(px, py, 8);
+            dc.fillCircle(px, py, isWholeKm ? 10 : 7);
+            dc.setColor(isWholeKm ? 0xFFFF00 : 0xFF8800,
+                        Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(px, py, isWholeKm ? 8 : 5);
+            if (!isWholeKm) { continue; }
             dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
             dc.drawText(px, py - 7, Graphics.FONT_XTINY,
-                        _kmNumbers[i].format("%d"), Graphics.TEXT_JUSTIFY_CENTER);
+                        (_kmNumbers[i] / 2).format("%d"), Graphics.TEXT_JUSTIFY_CENTER);
         }
     }
 
