@@ -98,16 +98,27 @@ class TestRasterRuntime(unittest.TestCase):
     def test_watch_selection_matches_host_at_centre_edges_and_outside(self):
         west, south, east, north = self.manifest["bounds"]
         center_lon, center_lat = self.manifest["center"]
-        positions = [
-            (center_lon, center_lat),
-            (west, north),
-            (east, north),
-            (west, south),
-            (east, south),
-            (west - 10.0, north + 10.0),
-        ]
         for zoom in (13, 15):
             grid = self.grid_from_index(zoom)
+            grid_west = geom.world_x_to_lon(grid.origin_x, zoom)
+            grid_east = geom.world_x_to_lon(
+                grid.origin_x + grid.cols * grid.tile_size, zoom
+            )
+            grid_north = geom.world_y_to_lat(grid.origin_y, zoom)
+            grid_south = geom.world_y_to_lat(
+                grid.origin_y + grid.rows * grid.tile_size, zoom
+            )
+            positions = [
+                (center_lon, center_lat),
+                (grid_west, center_lat),
+                (grid_east, center_lat),
+                (center_lon, grid_north),
+                (center_lon, grid_south),
+                (grid_west - 10.0, center_lat),
+                (grid_east + 10.0, center_lat),
+                (center_lon, grid_north + 10.0),
+                (center_lon, grid_south - 10.0),
+            ]
             for lon, lat in positions:
                 with self.subTest(zoom=zoom, lon=lon, lat=lat):
                     expected = visible_cells(grid, lon, lat, 360, 360)
@@ -121,11 +132,26 @@ class TestRasterRuntime(unittest.TestCase):
 
     def test_runtime_bounds_residency_and_draw_contracts_are_explicit(self):
         self.assertIn("const MAX_VISIBLE = 16;", self.pack_source)
-        self.assertIn("Application.loadResource", function_body(self.store_source, "prepare"))
+        prepare = function_body(self.store_source, "prepare")
+        load_missing = function_body(self.store_source, "loadMissing")
+        self.assertIn("loadMissing", prepare)
+        self.assertIn("Application.loadResource", load_missing)
         self.assertNotIn("Application.loadResource", function_body(self.store_source, "draw"))
         self.assertNotIn("Application.loadResource", function_body(self.view_source, "onUpdate"))
         self.assertIn("dc.drawBitmap", function_body(self.store_source, "draw"))
         self.assertIn("RasterMapIndex.WEST", function_body(self.pack_source, "contains"))
+
+    def test_store_releases_old_selection_before_loading_and_retries_failures(self):
+        prepare = function_body(self.store_source, "prepare")
+
+        changed_load = prepare.rindex("loadMissing")
+        self.assertLess(prepare.index("_cells = nextCells"), changed_load)
+        self.assertLess(prepare.index("_bitmaps = nextBitmaps"), changed_load)
+        self.assertIn("if (_loadFailed) { loadMissing(); }", prepare)
+
+    def test_view_releases_bitmaps_when_hidden_and_restores_them_when_shown(self):
+        self.assertIn("_store.clear()", function_body(self.view_source, "onHide"))
+        self.assertIn("_store.prepare", function_body(self.view_source, "onShow"))
 
 
 if __name__ == "__main__":

@@ -26,6 +26,15 @@ class RunMapView extends WatchUi.View {
         _store.prepare(_lat, _lon, _zoom, _width, _height);
     }
 
+    function onHide() {
+        _store.clear();
+    }
+
+    function onShow() {
+        _store.prepare(_lat, _lon, _zoom, _width, _height);
+        WatchUi.requestUpdate();
+    }
+
     function setPosition(lat, lon) {
         _lat = lat;
         _lon = lon;

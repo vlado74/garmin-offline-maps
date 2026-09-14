@@ -25,6 +25,7 @@ class RasterTileStore {
                 _cells[i].x = requested[i].x;
                 _cells[i].y = requested[i].y;
             }
+            if (_loadFailed) { loadMissing(); }
             return;
         }
 
@@ -35,22 +36,18 @@ class RasterTileStore {
             var cell = requested[i];
             var oldIndex = indexOf(cell, zoom);
             var bitmap = oldIndex >= 0 ? _bitmaps[oldIndex] : null;
-            if (oldIndex < 0) {
-                try {
-                    bitmap = Application.loadResource(cell.resource);
-                } catch (ex) {
-                    System.println("RasterTileStore: bitmap load failed");
-                    _loadFailed = true;
-                    bitmap = null;
-                }
-            }
-            if (bitmap == null) { _loadFailed = true; }
+            if (oldIndex >= 0) { _bitmaps[oldIndex] = null; }
             nextCells.add(cell);
             nextBitmaps.add(bitmap);
         }
+
+        // Publish the new selection before loading. This drops every outgoing
+        // bitmap reference first, so a zoom switch cannot retain one full
+        // viewport while allocating the next one.
         _zoom = zoom;
         _cells = nextCells;
         _bitmaps = nextBitmaps;
+        loadMissing();
     }
 
     function draw(dc) {
@@ -92,5 +89,19 @@ class RasterTileStore {
             if (_cells[i].col == cell.col && _cells[i].row == cell.row) { return i; }
         }
         return -1;
+    }
+
+    hidden function loadMissing() {
+        _loadFailed = false;
+        for (var i = 0; i < _cells.size(); i += 1) {
+            if (_bitmaps[i] != null) { continue; }
+            try {
+                _bitmaps[i] = Application.loadResource(_cells[i].resource);
+            } catch (ex) {
+                System.println("RasterTileStore: bitmap load failed");
+                _bitmaps[i] = null;
+            }
+            if (_bitmaps[i] == null) { _loadFailed = true; }
+        }
     }
 }
