@@ -15,6 +15,7 @@ class RunTrail {
     hidden var _sampleMetres;
     hidden var _lastFixLat;
     hidden var _lastFixLon;
+    hidden var _lapStartIndex;
 
     function initialize() {
         _lats = [] as Array<Number>;
@@ -22,6 +23,7 @@ class RunTrail {
         _sampleMetres = INITIAL_SAMPLE_METRES;
         _lastFixLat = null;
         _lastFixLon = null;
+        _lapStartIndex = 0;
     }
 
     //! Add a plausible fix far enough from the latest displayed point.
@@ -51,11 +53,16 @@ class RunTrail {
         _sampleMetres = INITIAL_SAMPLE_METRES;
         _lastFixLat = null;
         _lastFixLon = null;
+        _lapStartIndex = 0;
     }
 
     function size() { return _lats.size(); }
     function latAt(index) { return _lats[index]; }
     function lonAt(index) { return _lons[index]; }
+
+    function markLap() {
+        if (_lats.size() > 0) { _lapStartIndex = _lats.size() - 1; }
+    }
 
     //! Project retained geographic coordinates at the current display scale.
     function draw(dc, centreLat, centreLon, zoom, width, height) {
@@ -63,8 +70,16 @@ class RunTrail {
 
         var centreX = Mercator.lonToWorldX(centreLon, zoom);
         var centreY = Mercator.latToWorldY(centreLat, zoom);
-        drawPass(dc, 5, Graphics.COLOR_BLACK, centreX, centreY, zoom, width, height);
-        drawPass(dc, 3, 0x00D7FF, centreX, centreY, zoom, width, height);
+        if (_lapStartIndex > 0) {
+            drawPass(dc, 5, Graphics.COLOR_BLACK, centreX, centreY, zoom,
+                     width, height, 0, _lapStartIndex + 1);
+            drawPass(dc, 3, 0x0066CC, centreX, centreY, zoom,
+                     width, height, 0, _lapStartIndex + 1);
+        }
+        drawPass(dc, 5, Graphics.COLOR_BLACK, centreX, centreY, zoom,
+                 width, height, _lapStartIndex, _lats.size());
+        drawPass(dc, 3, 0x00D7FF, centreX, centreY, zoom,
+                 width, height, _lapStartIndex, _lats.size());
     }
 
     //! Equirectangular distance on a spherical earth; accurate at trail scale.
@@ -92,14 +107,17 @@ class RunTrail {
         _lats = compactLats;
         _lons = compactLons;
         _sampleMetres *= 2.0d;
+        _lapStartIndex = _lapStartIndex / 2;
     }
 
-    hidden function drawPass(dc, penWidth, colour, centreX, centreY, zoom, width, height) {
+    hidden function drawPass(dc, penWidth, colour, centreX, centreY, zoom,
+                             width, height, startIndex, endIndex) {
+        if (endIndex - startIndex < 2) { return; }
         dc.setColor(colour, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(penWidth);
-        var x1 = width / 2.0d + Mercator.lonToWorldX(_lons[0], zoom) - centreX;
-        var y1 = height / 2.0d + Mercator.latToWorldY(_lats[0], zoom) - centreY;
-        for (var i = 1; i < _lats.size(); i += 1) {
+        var x1 = width / 2.0d + Mercator.lonToWorldX(_lons[startIndex], zoom) - centreX;
+        var y1 = height / 2.0d + Mercator.latToWorldY(_lats[startIndex], zoom) - centreY;
+        for (var i = startIndex + 1; i < endIndex; i += 1) {
             var x2 = width / 2.0d + Mercator.lonToWorldX(_lons[i], zoom) - centreX;
             var y2 = height / 2.0d + Mercator.latToWorldY(_lats[i], zoom) - centreY;
             if (segmentVisible(x1, y1, x2, y2, width, height)) {

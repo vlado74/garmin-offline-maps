@@ -10,4 +10,9 @@
     <string id="SaveFailed">Save failed</string>
     <string id="MapFailed">Map unavailable</string>
     <string id="TapToRecenter">Tap for GPS</string>
+    <string id="Laps">Laps</string>
+    <string id="LastLap">Last</string>
+    <string id="LapDistance">Distance</string>
+    <string id="LapPace">Pace</string>
+    <string id="LapButton">L</string>
 </resources>

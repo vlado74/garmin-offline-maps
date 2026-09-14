@@ -6,14 +6,16 @@ class RunDelegate extends WatchUi.InputDelegate {
     hidden var _view;
     hidden var _controller;
     hidden var _trail;
+    hidden var _laps;
     hidden var _lastDragX;
     hidden var _lastDragY;
 
-    function initialize(view, controller, trail) {
+    function initialize(view, controller, trail, laps) {
         InputDelegate.initialize();
         _view = view;
         _controller = controller;
         _trail = trail;
+        _laps = laps;
         _lastDragX = 0;
         _lastDragY = 0;
     }
@@ -44,7 +46,8 @@ class RunDelegate extends WatchUi.InputDelegate {
     function onKey(event) {
         var key = event.getKey();
         if (key == WatchUi.KEY_ENTER) {
-            _controller.toggle();
+            var starting = _controller.state() == :ready;
+            if (_controller.toggle() && starting) { _laps.clear(); }
             _view.showDataBandTemporarily();
             WatchUi.requestUpdate();
             return true;

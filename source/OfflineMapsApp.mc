@@ -10,6 +10,7 @@ class OfflineMapsApp extends Application.AppBase {
     hidden var _store;
     hidden var _tracker;
     hidden var _trail;
+    hidden var _laps;
     hidden var _controller;
     hidden var _view;
     hidden var _timer;
@@ -21,16 +22,17 @@ class OfflineMapsApp extends Application.AppBase {
     function onStart(state) {
         _store = new RasterTileStore();
         _trail = new RunTrail();
+        _laps = new CircuitLapTracker();
         _controller = new RunController();
         _tracker = new LocationTracker(method(:onFix));
     }
 
     function getInitialView() {
-        _view = new RunMapView(_store, _trail, _controller);
+        _view = new RunMapView(_store, _trail, _controller, _laps);
         _tracker.start();
         _timer = new Timer.Timer();
         _timer.start(method(:onTick), REFRESH_MS, true);
-        return [_view, new RunDelegate(_view, _controller, _trail)];
+        return [_view, new RunDelegate(_view, _controller, _trail, _laps)];
     }
 
     function onTick() as Void {
@@ -52,6 +54,11 @@ class OfflineMapsApp extends Application.AppBase {
         _view.setPosition(lat, lon, _tracker.heading(), _tracker.hasHeading());
         if (_controller.state() == :recording) {
             _trail.add(lat, lon);
+            if (_laps.update(lat, lon, _controller.distanceMetres(), _controller.timerMs())) {
+                _controller.addLap();
+                _trail.markLap();
+                _view.showCompletedLap();
+            }
         }
         WatchUi.requestUpdate();
     }

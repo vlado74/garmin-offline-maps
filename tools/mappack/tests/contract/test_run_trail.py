@@ -210,8 +210,10 @@ class TestRunTrail(unittest.TestCase):
 
         draw = function_body(self.source, "draw")
         outline = draw.index("drawPass(dc, 5, Graphics.COLOR_BLACK")
+        previous = draw.index("drawPass(dc, 3, 0x0066CC")
         cyan = draw.index("drawPass(dc, 3, 0x00D7FF")
-        self.assertLess(outline, cyan)
+        self.assertLess(outline, previous)
+        self.assertLess(previous, cyan)
 
     def test_storage_is_parallel_typed_arrays_replaced_after_compaction(self):
         self.assertIn("hidden var _lats as Array<Number>;", self.source)
@@ -227,7 +229,7 @@ class TestRunTrail(unittest.TestCase):
 
         self.assertNotIn("[] as Array<Number>", draw)
         self.assertNotIn("[] as Array<Number>", draw_pass)
-        self.assertEqual(draw.count("drawPass(dc"), 2)
+        self.assertEqual(draw.count("drawPass(dc"), 4)
 
 
 if __name__ == "__main__":

@@ -128,6 +128,15 @@ class RunController {
     function state() { return _state; }
     function hasSession() { return _session != null; }
 
+    function addLap() {
+        if (_session == null || _state != RECORDING) { return false; }
+        try {
+            return _session.addLap();
+        } catch (ex) {
+            return false;
+        }
+    }
+
     function timerMs() {
         var info = Activity.getActivityInfo();
         return info == null || info.timerTime == null ? 0 : info.timerTime;

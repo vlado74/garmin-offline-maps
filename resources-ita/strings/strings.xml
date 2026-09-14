@@ -10,4 +10,9 @@
     <string id="SaveFailed">Salvataggio fallito</string>
     <string id="MapFailed">Mappa non disponibile</string>
     <string id="TapToRecenter">Tocca per GPS</string>
+    <string id="Laps">Giri</string>
+    <string id="LastLap">Ultimo</string>
+    <string id="LapDistance">Distanza</string>
+    <string id="LapPace">Passo</string>
+    <string id="LapButton">G</string>
 </resources>

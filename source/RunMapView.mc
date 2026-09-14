@@ -11,10 +11,12 @@ class RunMapView extends WatchUi.View {
     const LABEL_BUTTON_OFFSET = 68;
     const LABEL_BUTTON_RADIUS = 22;
     const LABEL_BUTTON_HIT_RADIUS = 28;
+    const LAP_DETAIL_VISIBLE_MS = 8000;
 
     hidden var _store;
     hidden var _trail;
     hidden var _controller;
+    hidden var _laps;
     hidden var _width;
     hidden var _height;
     hidden var _centreLat;
@@ -30,12 +32,15 @@ class RunMapView extends WatchUi.View {
     hidden var _followingGps;
     hidden var _hasGpsPosition;
     hidden var _showStreetLabels;
+    hidden var _showLapDetails;
+    hidden var _lapDetailsHideAt;
 
-    function initialize(store, trail, controller) {
+    function initialize(store, trail, controller, laps) {
         View.initialize();
         _store = store;
         _trail = trail;
         _controller = controller;
+        _laps = laps;
         _width = 360;
         _height = 360;
         _centreLat = RasterMapIndex.CENTER_LAT;
@@ -51,6 +56,8 @@ class RunMapView extends WatchUi.View {
         _followingGps = true;
         _hasGpsPosition = false;
         _showStreetLabels = true;
+        _showLapDetails = false;
+        _lapDetailsHideAt = null;
     }
 
     function onLayout(dc) {
@@ -162,13 +169,34 @@ class RunMapView extends WatchUi.View {
         if (_showDataBand && System.getTimer() >= _dataBandHideAt) {
             _showDataBand = false;
         }
+        if (_showLapDetails && _lapDetailsHideAt != null
+            && System.getTimer() >= _lapDetailsHideAt) {
+            _showLapDetails = false;
+            _lapDetailsHideAt = null;
+        }
+    }
+
+    function showCompletedLap() {
+        _showLapDetails = true;
+        _lapDetailsHideAt = System.getTimer() + LAP_DETAIL_VISIBLE_MS;
+        WatchUi.requestUpdate();
     }
 
     //! Consume taps on the label control; all other taps keep
     //! their existing GPS-recentre behavior in RunDelegate.
     function handleTap(x, y) {
-        var buttonX = _width - LABEL_BUTTON_OFFSET;
+        var lapButtonX = LABEL_BUTTON_OFFSET;
         var buttonY = _height - LABEL_BUTTON_OFFSET;
+        var lapDx = x - lapButtonX;
+        var lapDy = y - buttonY;
+        if (lapDx >= -LABEL_BUTTON_HIT_RADIUS && lapDx <= LABEL_BUTTON_HIT_RADIUS
+            && lapDy >= -LABEL_BUTTON_HIT_RADIUS && lapDy <= LABEL_BUTTON_HIT_RADIUS) {
+            _showLapDetails = !_showLapDetails;
+            _lapDetailsHideAt = null;
+            WatchUi.requestUpdate();
+            return true;
+        }
+        var buttonX = _width - LABEL_BUTTON_OFFSET;
         var dx = x - buttonX;
         var dy = y - buttonY;
         if (dx < -LABEL_BUTTON_HIT_RADIUS || dx > LABEL_BUTTON_HIT_RADIUS
@@ -193,12 +221,69 @@ class RunMapView extends WatchUi.View {
             StreetLabelOverlay.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
         }
         _trail.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
+        drawLapMarker(dc);
         drawHomeMarker(dc);
         if (_gpsReady) { drawMarker(dc); }
         drawStatus(dc);
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
         if (_showDataBand) { drawDataBand(dc); }
+        if (_showLapDetails) { drawLapDetails(dc); }
+        drawLapButton(dc);
         drawStreetLabelButton(dc);
+    }
+
+    hidden function drawLapButton(dc) {
+        var x = LABEL_BUTTON_OFFSET;
+        var y = _height - LABEL_BUTTON_OFFSET;
+        dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(x, y, LABEL_BUTTON_RADIUS);
+        dc.setColor(_showLapDetails ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY,
+                    Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(x, y, LABEL_BUTTON_RADIUS - 3);
+        dc.setColor(_showLapDetails ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE,
+                    Graphics.COLOR_TRANSPARENT);
+        dc.drawText(x, y, Graphics.FONT_XTINY,
+                    WatchUi.loadResource(Rez.Strings.LapButton),
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    hidden function drawLapDetails(dc) {
+        var panelX = 42;
+        var panelY = 82;
+        var panelWidth = _width - 84;
+        dc.setColor(RunStyle.BAND, RunStyle.BAND);
+        dc.fillRectangle(panelX, panelY, panelWidth, 190);
+        dc.setColor(RunStyle.BAND_TEXT, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(_width / 2, panelY + 12, Graphics.FONT_SMALL,
+                    WatchUi.loadResource(Rez.Strings.Laps) + " " + _laps.count().format("%d"),
+                    Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(_width / 2, panelY + 58, Graphics.FONT_XTINY,
+                    WatchUi.loadResource(Rez.Strings.LastLap) + "  "
+                    + formatLapTime(_laps.lastTimeMs()), Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(_width / 2, panelY + 94, Graphics.FONT_XTINY,
+                    WatchUi.loadResource(Rez.Strings.LapDistance) + "  "
+                    + formatDistance(_laps.lastDistanceMetres()), Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(_width / 2, panelY + 130, Graphics.FONT_XTINY,
+                    WatchUi.loadResource(Rez.Strings.LapPace) + "  "
+                    + formatPace(_laps.lastPaceSeconds()), Graphics.TEXT_JUSTIFY_CENTER);
+    }
+
+    hidden function drawLapMarker(dc) {
+        if (!_laps.hasStart() || _laps.count() <= 0) { return; }
+        var x = _width / 2.0d + Mercator.lonToWorldX(_laps.startLon(), _zoom)
+                - Mercator.lonToWorldX(_centreLon, _zoom);
+        var y = _height / 2.0d + Mercator.latToWorldY(_laps.startLat(), _zoom)
+                - Mercator.latToWorldY(_centreLat, _zoom);
+        if (x < -14 || x > _width + 14 || y < -14 || y > _height + 14) { return; }
+        var px = x.toNumber();
+        var py = y.toNumber();
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(px, py, 13);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(px, py, 10);
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(px, py, Graphics.FONT_XTINY, _laps.count().format("%d"),
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     hidden function drawStreetLabelButton(dc) {
@@ -356,6 +441,12 @@ class RunMapView extends WatchUi.View {
 
     hidden function formatDistance(metres) {
         return (metres / 1000.0d).format("%.2f") + " km";
+    }
+
+    hidden function formatLapTime(milliseconds) {
+        if (milliseconds <= 0) { return "--:--"; }
+        var seconds = (milliseconds / 1000).toNumber();
+        return (seconds / 60).format("%d") + ":" + (seconds % 60).format("%02d");
     }
 
     hidden function formatPace(secondsPerKm) {
