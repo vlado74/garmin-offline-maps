@@ -1,10 +1,13 @@
 import Toybox.Graphics;
+import Toybox.Math;
+import Toybox.System;
 import Toybox.WatchUi;
 
 //! North-up raster map with GPS following and touch exploration.
 class RunMapView extends WatchUi.View {
     const DATA_BAND_HEIGHT = 52;
     const DATA_ROW_Y = 52;
+    const DATA_BAND_VISIBLE_MS = 8000;
 
     hidden var _store;
     hidden var _trail;
@@ -15,9 +18,12 @@ class RunMapView extends WatchUi.View {
     hidden var _centreLon;
     hidden var _gpsLat;
     hidden var _gpsLon;
+    hidden var _gpsHeading;
+    hidden var _hasGpsHeading;
     hidden var _zoom;
     hidden var _gpsReady;
     hidden var _showDataBand;
+    hidden var _dataBandHideAt;
     hidden var _followingGps;
     hidden var _hasGpsPosition;
 
@@ -32,9 +38,12 @@ class RunMapView extends WatchUi.View {
         _centreLon = RasterMapIndex.CENTER_LON;
         _gpsLat = RasterMapIndex.CENTER_LAT;
         _gpsLon = RasterMapIndex.CENTER_LON;
+        _gpsHeading = 0.0d;
+        _hasGpsHeading = false;
         _zoom = RasterPack.OVERVIEW;
         _gpsReady = false;
         _showDataBand = true;
+        _dataBandHideAt = System.getTimer() + DATA_BAND_VISIBLE_MS;
         _followingGps = true;
         _hasGpsPosition = false;
     }
@@ -54,9 +63,11 @@ class RunMapView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
 
-    function setPosition(lat, lon) {
+    function setPosition(lat, lon, heading, hasHeading) {
         _gpsLat = lat;
         _gpsLon = lon;
+        _gpsHeading = heading;
+        _hasGpsHeading = hasHeading;
         if (_followingGps || !_hasGpsPosition) {
             _centreLat = lat;
             _centreLon = lon;
@@ -127,8 +138,25 @@ class RunMapView extends WatchUi.View {
 
     //! Give the map the full screen on demand while keeping recording active.
     function toggleDataBand() {
-        _showDataBand = !_showDataBand;
+        if (_showDataBand) {
+            _showDataBand = false;
+        } else {
+            showDataBandTemporarily();
+        }
         WatchUi.requestUpdate();
+    }
+
+    //! Reveal metrics briefly after launch, START/STOP, or a manual request.
+    function showDataBandTemporarily() {
+        _showDataBand = true;
+        _dataBandHideAt = System.getTimer() + DATA_BAND_VISIBLE_MS;
+        WatchUi.requestUpdate();
+    }
+
+    function updateDataBandVisibility() {
+        if (_showDataBand && System.getTimer() >= _dataBandHideAt) {
+            _showDataBand = false;
+        }
     }
 
     function release() { _store.clear(); }
@@ -165,10 +193,35 @@ class RunMapView extends WatchUi.View {
         var y = _height / 2.0d + Mercator.latToWorldY(_gpsLat, _zoom)
                 - Mercator.latToWorldY(_centreLat, _zoom);
         if (x < -8 || x > _width + 8 || y < -8 || y > _height + 8) { return; }
+        var px = x.toNumber();
+        var py = y.toNumber();
+        if (!_hasGpsHeading) {
+            dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(px, py, 8);
+            dc.setColor(RunStyle.MARKER, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(px, py, 5);
+            return;
+        }
+
+        var forwardX = Math.sin(_gpsHeading);
+        var forwardY = -Math.cos(_gpsHeading);
+        var sideX = -forwardY;
+        var sideY = forwardX;
         dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(x.toNumber(), y.toNumber(), 8);
+        dc.fillPolygon(markerTriangle(px, py, forwardX, forwardY, sideX, sideY, 13, 7, 9));
         dc.setColor(RunStyle.MARKER, Graphics.COLOR_TRANSPARENT);
-        dc.fillCircle(x.toNumber(), y.toNumber(), 5);
+        dc.fillPolygon(markerTriangle(px, py, forwardX, forwardY, sideX, sideY, 10, 4, 6));
+    }
+
+    hidden function markerTriangle(px, py, forwardX, forwardY, sideX, sideY,
+                                   nose, back, halfWidth) {
+        return [
+            [(px + forwardX * nose).toNumber(), (py + forwardY * nose).toNumber()],
+            [(px - forwardX * back + sideX * halfWidth).toNumber(),
+             (py - forwardY * back + sideY * halfWidth).toNumber()],
+            [(px - forwardX * back - sideX * halfWidth).toNumber(),
+             (py - forwardY * back - sideY * halfWidth).toNumber()]
+        ];
     }
 
     //! Fixed home landmark; private coordinates never enter version control.

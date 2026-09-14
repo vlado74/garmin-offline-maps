@@ -63,8 +63,8 @@ class RunTrail {
 
         var centreX = Mercator.lonToWorldX(centreLon, zoom);
         var centreY = Mercator.latToWorldY(centreLat, zoom);
-        drawPass(dc, 4, Graphics.COLOR_DK_GRAY, centreX, centreY, zoom, width, height);
-        drawPass(dc, 2, 0x00D7FF, centreX, centreY, zoom, width, height);
+        drawPass(dc, 5, Graphics.COLOR_BLACK, centreX, centreY, zoom, width, height);
+        drawPass(dc, 3, 0x00D7FF, centreX, centreY, zoom, width, height);
     }
 
     //! Equirectangular distance on a spherical earth; accurate at trail scale.

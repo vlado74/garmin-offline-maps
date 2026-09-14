@@ -34,7 +34,10 @@ class OfflineMapsApp extends Application.AppBase {
     }
 
     function onTick() as Void {
-        if (_view != null) { WatchUi.requestUpdate(); }
+        if (_view != null) {
+            _view.updateDataBandVisibility();
+            WatchUi.requestUpdate();
+        }
     }
 
     function onFix() {
@@ -46,7 +49,7 @@ class OfflineMapsApp extends Application.AppBase {
 
         var lat = _tracker.lat();
         var lon = _tracker.lon();
-        _view.setPosition(lat, lon);
+        _view.setPosition(lat, lon, _tracker.heading(), _tracker.hasHeading());
         if (_controller.state() == :recording) {
             _trail.add(lat, lon);
         }

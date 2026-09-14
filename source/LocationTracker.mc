@@ -4,10 +4,14 @@ import Toybox.System;
 
 //! Supplies only position fixes whose Garmin quality is usable for a run.
 class LocationTracker {
+    const MIN_HEADING_SPEED = 0.8d;
+
     hidden var _lat;
     hidden var _lon;
     hidden var _hasFix;
     hidden var _accuracy;
+    hidden var _heading;
+    hidden var _hasHeading;
     hidden var _onFix;
     hidden var _running;
 
@@ -16,6 +20,8 @@ class LocationTracker {
         _lon = 0.0d;
         _hasFix = false;
         _accuracy = Position.QUALITY_NOT_AVAILABLE;
+        _heading = 0.0d;
+        _hasHeading = false;
         _onFix = onFix;
         _running = false;
     }
@@ -24,6 +30,8 @@ class LocationTracker {
     function lon() { return _lon; }
     function hasFix() { return _hasFix; }
     function accuracy() { return _accuracy; }
+    function heading() { return _heading; }
+    function hasHeading() { return _hasHeading; }
     function hasUsableFix() {
         return _hasFix && (_accuracy == Position.QUALITY_USABLE
             || _accuracy == Position.QUALITY_GOOD);
@@ -69,6 +77,7 @@ class LocationTracker {
         if (info == null || info.position == null) {
             _hasFix = false;
             _accuracy = Position.QUALITY_NOT_AVAILABLE;
+            _hasHeading = false;
             if (_onFix != null) { _onFix.invoke(); }
             return;
         }
@@ -77,6 +86,9 @@ class LocationTracker {
         _lon = degrees[1];
         _hasFix = true;
         _accuracy = info.accuracy;
+        _hasHeading = info.heading != null && info.speed != null
+            && info.speed >= MIN_HEADING_SPEED;
+        if (_hasHeading) { _heading = info.heading; }
         if (_onFix != null) { _onFix.invoke(); }
     }
 }

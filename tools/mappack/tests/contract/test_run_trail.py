@@ -209,8 +209,8 @@ class TestRunTrail(unittest.TestCase):
         self.assertEqual(draw_order, sorted(draw_order))
 
         draw = function_body(self.source, "draw")
-        outline = draw.index("drawPass(dc, 4, Graphics.COLOR_DK_GRAY")
-        cyan = draw.index("drawPass(dc, 2, 0x00D7FF")
+        outline = draw.index("drawPass(dc, 5, Graphics.COLOR_BLACK")
+        cyan = draw.index("drawPass(dc, 3, 0x00D7FF")
         self.assertLess(outline, cyan)
 
     def test_storage_is_parallel_typed_arrays_replaced_after_compaction(self):

@@ -43,6 +43,7 @@ class RunDelegate extends WatchUi.InputDelegate {
         var key = event.getKey();
         if (key == WatchUi.KEY_ENTER) {
             _controller.toggle();
+            _view.showDataBandTemporarily();
             WatchUi.requestUpdate();
             return true;
         }
