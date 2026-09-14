@@ -462,6 +462,7 @@ def render_cell(
     col: int,
     row: int,
     fonts: RasterFonts,
+    draw_labels: bool = True,
 ) -> Image.Image:
     """Render one high-contrast, indexed-color offline map cell."""
     if scene.zoom != grid.zoom or scene.tile_size != grid.tile_size:
@@ -495,19 +496,20 @@ def render_cell(
             draw.line(points, fill=RasterStyle.RAIL, width=width + 2 * scale, joint="curve")
         draw.line(points, fill=_feature_color(feature.layer), width=width, joint="curve")
 
-    placed = place_labels(_label_candidates(features, left, top, size), (size, size), fonts)
-    for label in placed:
-        base_font = fonts.bold if label.bold else fonts.regular
-        font = _scaled_font(base_font, scale)
-        position = (label.position[0] * scale, label.position[1] * scale)
-        draw.text(
-            position,
-            label.text,
-            font=font,
-            fill=RasterStyle.LABEL,
-            stroke_width=2 * scale,
-            stroke_fill=RasterStyle.LABEL_HALO,
-        )
+    if draw_labels:
+        placed = place_labels(_label_candidates(features, left, top, size), (size, size), fonts)
+        for label in placed:
+            base_font = fonts.bold if label.bold else fonts.regular
+            font = _scaled_font(base_font, scale)
+            position = (label.position[0] * scale, label.position[1] * scale)
+            draw.text(
+                position,
+                label.text,
+                font=font,
+                fill=RasterStyle.LABEL,
+                stroke_width=2 * scale,
+                stroke_fill=RasterStyle.LABEL_HALO,
+            )
 
     canvas = canvas.resize((size, size), Image.Resampling.LANCZOS)
     return canvas.quantize(

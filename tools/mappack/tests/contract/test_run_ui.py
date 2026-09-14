@@ -96,8 +96,10 @@ class TestRunUi(unittest.TestCase):
         self.assertIn("function drawStreetLabelButton(dc)", view)
         self.assertIn("_showStreetLabels", view)
         self.assertRegex(view, r"if \(_showStreetLabels\)[\s\S]*?StreetLabelOverlay\.draw")
+        handle_tap = view.split("function handleTap(x, y)", 1)[1].split("function", 1)[0]
+        self.assertNotIn("RasterPack.CLOSE", handle_tap)
         overlay = source("StreetLabelOverlay.mc")
-        self.assertIn("if (zoom != RasterPack.CLOSE)", overlay)
+        self.assertNotIn("if (zoom != RasterPack.CLOSE)", overlay)
         self.assertIn("StreetLabelIndex.labelsAt", overlay)
         self.assertIn("MAX_DRAWN = 12", overlay)
         self.assertIn("Graphics.FONT_XTINY", overlay)

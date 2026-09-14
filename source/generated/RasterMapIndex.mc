@@ -278,7 +278,28 @@ module RasterMapIndex {
 }
 
 module StreetLabelIndex {
-    function labelsAt(col, row) {
+    function labelsAt(zoom, col, row) {
+        if (zoom == 13) { return labelsAt13(col, row); }
+        if (zoom == 15) { return labelsAt15(col, row); }
+        return null;
+    }
+
+    function labelsAt13(col, row) {
+        if (col < 0 || row < 0 || col >= 4 || row >= 4) { return null; }
+        var key = col * 4 + row;
+        switch (key) {
+            case 2: return [[1126291, 687848, "Ronda Oeste"], [1126304, 687846, "Calle 4"], [1126232, 687846, "Calle 1"], [1126280, 687846, "Calle 3"]];
+            case 4: return [[1126422, 687659, "A-99"], [1126422, 687704, "Travesia 13"]];
+            case 5: return [[1126422, 687727, "Travesia 12"], [1126422, 687823, "Travesia 8"], [1126422, 687798, "Travesia 9"], [1126422, 687750, "Travesia 11"]];
+            case 6: return [[1126423, 687843, "Gran Via Demo"], [1126428, 687847, "Paseo Central"], [1126422, 687894, "Travesia 5"], [1126422, 687871, "Travesia 6"]];
+            case 7: return [[1126422, 687966, "Travesia 2"], [1126422, 687991, "Travesia 1"]];
+            case 10: return [[1126559, 687847, "Ronda Este"], [1126446, 687846, "Calle 10"], [1126517, 687846, "Calle 13"], [1126540, 687846, "Calle 14"]];
+            case 14: return [[1126588, 687846, "Calle 16"], [1126612, 687846, "Calle 17"], [1126563, 687846, "Calle 15"]];
+        }
+        return null;
+    }
+
+    function labelsAt15(col, row) {
         if (col < 0 || row < 0 || col >= 15 || row >= 13) { return null; }
         var key = col * 13 + row;
         switch (key) {
@@ -309,4 +330,5 @@ module StreetLabelIndex {
         }
         return null;
     }
+
 }

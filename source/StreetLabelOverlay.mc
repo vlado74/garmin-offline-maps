@@ -1,32 +1,33 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 
-//! Sparse named-road labels drawn only over the closest raster scale.
+//! Sparse named-road labels drawn independently over every raster scale.
 module StreetLabelOverlay {
     const MAX_DRAWN = 12;
     const LABEL_HEIGHT = 18;
     const PADDING_X = 4;
 
     function draw(dc, centreLat, centreLon, zoom, width, height) {
-        if (zoom != RasterPack.CLOSE) { return; }
         var cells = RasterPack.visibleCells(centreLat, centreLon, zoom, width, height);
+        var sourceZoom = RasterPack.resourceZoom(zoom);
+        var scale = RasterPack.scaleFor(zoom);
         var occupied = [] as Array<Array<Number>>;
         var drawn = 0;
         for (var cellIndex = 0; cellIndex < cells.size() && drawn < MAX_DRAWN;
              cellIndex += 1) {
             var cell = cells[cellIndex];
-            var rawLabels = StreetLabelIndex.labelsAt(cell.col, cell.row);
+            var rawLabels = StreetLabelIndex.labelsAt(sourceZoom, cell.col, cell.row);
             if (rawLabels == null) { continue; }
             var labels = rawLabels as Array<Array<Object>>;
             for (var labelIndex = 0; labelIndex < labels.size() && drawn < MAX_DRAWN;
                  labelIndex += 1) {
                 var label = labels[labelIndex] as Array<Object>;
-                var cellWorldX = RasterMapIndex.originX(RasterPack.DETAIL)
+                var cellWorldX = RasterMapIndex.originX(sourceZoom)
                     + cell.col * RasterMapIndex.TILE_SIZE;
-                var cellWorldY = RasterMapIndex.originY(RasterPack.DETAIL)
+                var cellWorldY = RasterMapIndex.originY(sourceZoom)
                     + cell.row * RasterMapIndex.TILE_SIZE;
-                var x = (cell.x + (label[0] - cellWorldX) * 2.0d).toNumber();
-                var y = (cell.y + (label[1] - cellWorldY) * 2.0d).toNumber();
+                var x = (cell.x + (label[0] - cellWorldX) * scale).toNumber();
+                var y = (cell.y + (label[1] - cellWorldY) * scale).toNumber();
                 var text = label[2] as String;
                 var labelWidth = dc.getTextWidthInPixels(text, Graphics.FONT_XTINY)
                     + PADDING_X * 2;

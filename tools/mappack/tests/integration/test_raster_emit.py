@@ -70,7 +70,9 @@ class TestRasterEmit(unittest.TestCase):
         self.assertIn('packingFormat="png"', self.read(os.path.join(self.out, "mapdata.xml")))
         self.assertIn("module RasterMapIndex", self.read(self.index))
         self.assertIn("module StreetLabelIndex", self.read(self.index))
-        self.assertIn("function labelsAt(col, row)", self.read(self.index))
+        self.assertIn("function labelsAt(zoom, col, row)", self.read(self.index))
+        self.assertIn("if (zoom == 13)", self.read(self.index))
+        self.assertIn("if (zoom == 15)", self.read(self.index))
         self.assertIn('"Synthetic Road"', self.read(self.index))
         self.assertIn("const HOME_LON = 0.0000000d;", self.read(self.index))
         self.assertIn("const HOME_LAT = 0.0000000d;", self.read(self.index))
@@ -151,7 +153,7 @@ class TestRasterEmit(unittest.TestCase):
         self.assertIn("function cols(zoom)", index)
         self.assertIn("function rows(zoom)", index)
         self.assertIn("function resourceAt(zoom, col, row)", index)
-        self.assertEqual(index.count("if (col < 0 || row < 0"), 3)
+        self.assertEqual(index.count("if (col < 0 || row < 0"), 4)
         self.assertIn("if (zoom == 15) { return resourceAt15(col, row); }", index)
 
     def test_cli_accepts_only_the_zoom_13_and_15_pair(self):

@@ -132,23 +132,34 @@ def _index_source(
         lines.extend(["        }", "        return null;", "    }", ""])
     lines.extend(["}", ""])
 
-    detail = next(grid for grid in grids if grid.zoom == 15)
-    labels = street_label_cells(ways, detail)
     lines.extend([
         "module StreetLabelIndex {",
-        "    function labelsAt(col, row) {",
-        "        if (col < 0 || row < 0 || col >= %d || row >= %d) { return null; }"
-        % (detail.cols, detail.rows),
-        "        var key = col * %d + row;" % detail.rows,
-        "        switch (key) {",
+        "    function labelsAt(zoom, col, row) {",
     ])
-    for (col, row), cell_labels in sorted(labels.items()):
-        entries = ", ".join(
-            "[%d, %d, %s]" % (label.world_x, label.world_y, _monkey_c_string(label.text))
-            for label in cell_labels
+    for grid in grids:
+        lines.append(
+            "        if (zoom == %d) { return labelsAt%d(col, row); }"
+            % (grid.zoom, grid.zoom)
         )
-        lines.append("            case %d: return [%s];" % (col * detail.rows + row, entries))
-    lines.extend(["        }", "        return null;", "    }", "}", ""])
+    lines.extend(["        return null;", "    }", ""])
+    for grid in grids:
+        labels = street_label_cells(ways, grid)
+        lines.extend([
+            "    function labelsAt%d(col, row) {" % grid.zoom,
+            "        if (col < 0 || row < 0 || col >= %d || row >= %d) { return null; }"
+            % (grid.cols, grid.rows),
+            "        var key = col * %d + row;" % grid.rows,
+            "        switch (key) {",
+        ])
+        for (col, row), cell_labels in sorted(labels.items()):
+            entries = ", ".join(
+                "[%d, %d, %s]"
+                % (label.world_x, label.world_y, _monkey_c_string(label.text))
+                for label in cell_labels
+            )
+            lines.append("            case %d: return [%s];" % (col * grid.rows + row, entries))
+        lines.extend(["        }", "        return null;", "    }", ""])
+    lines.extend(["}", ""])
     return "\n".join(lines)
 
 
@@ -183,7 +194,7 @@ def write_raster_pack(
             for row in range(grid.rows):
                 resource_id = "r%d_%d_%d" % (grid.zoom, col, row)
                 path = os.path.join(tiles_dir, resource_id + ".png")
-                render_cell(scene, grid, col, row, fonts).save(
+                render_cell(scene, grid, col, row, fonts, draw_labels=False).save(
                     path, format="PNG", optimize=True
                 )
                 resource_count += 1

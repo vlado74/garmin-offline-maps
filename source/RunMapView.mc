@@ -164,10 +164,9 @@ class RunMapView extends WatchUi.View {
         }
     }
 
-    //! Consume taps on the close-zoom label control; all other taps keep
+    //! Consume taps on the label control; all other taps keep
     //! their existing GPS-recentre behavior in RunDelegate.
     function handleTap(x, y) {
-        if (_zoom != RasterPack.CLOSE) { return false; }
         var buttonX = _width - LABEL_BUTTON_OFFSET;
         var buttonY = _height - LABEL_BUTTON_OFFSET;
         var dx = x - buttonX;
@@ -203,7 +202,6 @@ class RunMapView extends WatchUi.View {
     }
 
     hidden function drawStreetLabelButton(dc) {
-        if (_zoom != RasterPack.CLOSE) { return; }
         var x = _width - LABEL_BUTTON_OFFSET;
         var y = _height - LABEL_BUTTON_OFFSET;
         dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
