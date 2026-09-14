@@ -29,6 +29,10 @@ class RunDelegate extends WatchUi.InputDelegate {
             _view.zoomOut();
             return true;
         }
+        if (key == WatchUi.KEY_MENU) {
+            _view.toggleDataBand();
+            return true;
+        }
         if (key == WatchUi.KEY_ESC && _controller.hasSession()) {
             var prompt = WatchUi.loadResource(Rez.Strings.SaveActivity) as String;
             WatchUi.pushView(new WatchUi.Confirmation(prompt),
@@ -39,9 +43,4 @@ class RunDelegate extends WatchUi.InputDelegate {
         return false;
     }
 
-    //! The 265S maps a long press of UP/MENU to this behavior.
-    function onMenu() {
-        _view.toggleDataBand();
-        return true;
-    }
 }
