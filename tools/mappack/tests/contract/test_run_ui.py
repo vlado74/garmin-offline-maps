@@ -95,7 +95,11 @@ class TestRunUi(unittest.TestCase):
         self.assertIn("function handleTap(x, y)", view)
         self.assertIn("function drawStreetLabelButton(dc)", view)
         self.assertIn("function drawMarkerModeButton(dc)", view)
+        self.assertIn("const MARKER_BUTTON_X = 68", view)
+        self.assertIn("const MARKER_BUTTON_Y = 110", view)
         self.assertIn("function drawScaleBar(dc)", view)
+        scale = view.split("function drawScaleBar(dc)", 1)[1].split("function", 1)[0]
+        self.assertRegex(scale, r"COLOR_BLACK[\s\S]*?dc\.drawText")
         self.assertIn("function drawNorthIndicator(dc)", view)
         self.assertIn("_markerMode", view)
         self.assertRegex(view, r"_markerMode\s*=\s*\(_markerMode \+ 1\) % 3")

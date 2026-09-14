@@ -12,6 +12,8 @@ class RunMapView extends WatchUi.View {
     const LABEL_BUTTON_RADIUS = 22;
     const LABEL_BUTTON_HIT_RADIUS = 28;
     const LAP_DETAIL_VISIBLE_MS = 8000;
+    const MARKER_BUTTON_X = 68;
+    const MARKER_BUTTON_Y = 110;
 
     hidden var _store;
     hidden var _trail;
@@ -198,8 +200,8 @@ class RunMapView extends WatchUi.View {
             WatchUi.requestUpdate();
             return true;
         }
-        var markerDx = x - (_width / 2);
-        var markerDy = y - buttonY;
+        var markerDx = x - MARKER_BUTTON_X;
+        var markerDy = y - MARKER_BUTTON_Y;
         if (markerDx >= -LABEL_BUTTON_HIT_RADIUS && markerDx <= LABEL_BUTTON_HIT_RADIUS
             && markerDy >= -LABEL_BUTTON_HIT_RADIUS && markerDy <= LABEL_BUTTON_HIT_RADIUS) {
             _markerMode = (_markerMode + 1) % 3;
@@ -247,8 +249,8 @@ class RunMapView extends WatchUi.View {
     }
 
     hidden function drawMarkerModeButton(dc) {
-        var x = _width / 2;
-        var y = _height - LABEL_BUTTON_OFFSET;
+        var x = MARKER_BUTTON_X;
+        var y = MARKER_BUTTON_Y;
         dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
         dc.fillCircle(x, y, LABEL_BUTTON_RADIUS);
         dc.setColor(_markerMode == MarkerMode.HIDDEN
@@ -289,6 +291,7 @@ class RunMapView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
         dc.drawLine(left, y, right, y);
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         dc.drawText(_width / 2, y - 22, Graphics.FONT_XTINY,
                     metres >= 1000 ? "1 km" : metres.format("%d") + " m",
                     Graphics.TEXT_JUSTIFY_CENTER);
