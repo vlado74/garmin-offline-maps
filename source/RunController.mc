@@ -18,11 +18,13 @@ class RunController {
     hidden var _session;
     hidden var _state;
     hidden var _gpsReady;
+    hidden var _recordingActive;
 
     function initialize() {
         _session = null;
         _state = WAITING_GPS;
         _gpsReady = false;
+        _recordingActive = false;
     }
 
     function setGpsReady(ready) {
@@ -40,7 +42,11 @@ class RunController {
                     :sport => Activity.SPORT_RUNNING,
                     :subSport => Activity.SUB_SPORT_STREET
                 });
-                _session.start();
+                if (!_session.start()) {
+                    _state = SAVE_FAILED;
+                    return false;
+                }
+                _recordingActive = true;
                 _state = RECORDING;
                 return true;
             } catch (ex) {
@@ -49,17 +55,14 @@ class RunController {
             }
         }
         if (_state == RECORDING) {
-            try {
-                _session.stop();
-                _state = PAUSED;
-                return true;
-            } catch (ex) {
-                return false;
-            }
+            if (!stopRecording()) { return false; }
+            _state = PAUSED;
+            return true;
         }
         if (_state == PAUSED) {
             try {
-                _session.start();
+                if (!_session.start()) { return false; }
+                _recordingActive = true;
                 _state = RECORDING;
                 return true;
             } catch (ex) {
@@ -71,9 +74,7 @@ class RunController {
 
     function save() {
         if (_session == null) { return true; }
-        if (_state == RECORDING) {
-            try { _session.stop(); } catch (ex) { }
-        }
+        if (!stopRecording()) { return false; }
         try {
             if (_session.save()) {
                 _session = null;
@@ -88,11 +89,12 @@ class RunController {
     //! Called only after an explicit user choice.
     function discard() {
         if (_session == null) { return true; }
-        if (_state == RECORDING) {
-            try { _session.stop(); } catch (ex) { }
-        }
+        if (!stopRecording()) { return false; }
         try {
-            _session.discard();
+            if (!_session.discard()) {
+                _state = SAVE_FAILED;
+                return false;
+            }
             _session = null;
             settleIdleState();
             return true;
@@ -104,19 +106,23 @@ class RunController {
 
     //! Best-effort lifecycle save. It never discards the session.
     function shutdown() {
-        if (_session == null) { return true; }
-        if (_state == RECORDING) {
-            try { _session.stop(); } catch (ex) { }
-        }
+        return save();
+    }
+
+    //! Stop whenever Garmin may still be recording, including a save retry.
+    hidden function stopRecording() {
+        if (!_recordingActive) { return true; }
         try {
-            if (_session.save()) {
-                _session = null;
-                settleIdleState();
-                return true;
+            if (!_session.stop()) {
+                _state = SAVE_FAILED;
+                return false;
             }
-        } catch (ex) { }
-        _state = SAVE_FAILED;
-        return false;
+        } catch (ex) {
+            _state = SAVE_FAILED;
+            return false;
+        }
+        _recordingActive = false;
+        return true;
     }
 
     function state() { return _state; }
