@@ -59,7 +59,8 @@ class RunMapView extends WatchUi.View {
     }
 
     function setZoom(zoom) {
-        if (zoom != RasterPack.OVERVIEW && zoom != RasterPack.DETAIL) { return; }
+        if (zoom != RasterPack.OVERVIEW && zoom != RasterPack.DETAIL
+                && zoom != RasterPack.CLOSE) { return; }
         if (_zoom == zoom) { return; }
         _zoom = zoom;
         _store.prepare(_lat, _lon, _zoom, _width, _height);
@@ -67,6 +68,22 @@ class RunMapView extends WatchUi.View {
     }
 
     function zoom() { return _zoom; }
+
+    function zoomIn() {
+        if (_zoom == RasterPack.OVERVIEW) {
+            setZoom(RasterPack.DETAIL);
+        } else if (_zoom == RasterPack.DETAIL) {
+            setZoom(RasterPack.CLOSE);
+        }
+    }
+
+    function zoomOut() {
+        if (_zoom == RasterPack.CLOSE) {
+            setZoom(RasterPack.DETAIL);
+        } else if (_zoom == RasterPack.DETAIL) {
+            setZoom(RasterPack.OVERVIEW);
+        }
+    }
 
     //! Give the map the full screen on demand while keeping recording active.
     function toggleDataBand() {

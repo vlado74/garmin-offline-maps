@@ -132,6 +132,8 @@ class TestRasterRuntime(unittest.TestCase):
 
     def test_runtime_bounds_residency_and_draw_contracts_are_explicit(self):
         self.assertIn("const MAX_VISIBLE = 16;", self.pack_source)
+        self.assertIn("const CLOSE = 16;", self.pack_source)
+        self.assertIn("function resourceZoom", self.pack_source)
         prepare = function_body(self.store_source, "prepare")
         load_missing = function_body(self.store_source, "loadMissing")
         self.assertIn("loadMissing", prepare)
@@ -139,6 +141,8 @@ class TestRasterRuntime(unittest.TestCase):
         self.assertNotIn("Application.loadResource", function_body(self.store_source, "draw"))
         self.assertNotIn("Application.loadResource", function_body(self.view_source, "onUpdate"))
         self.assertIn("dc.drawBitmap", function_body(self.store_source, "draw"))
+        self.assertIn("dc.drawBitmap2", function_body(self.store_source, "draw"))
+        self.assertIn("AffineTransform", self.store_source)
         self.assertIn("RasterMapIndex.WEST", function_body(self.pack_source, "contains"))
 
     def test_store_releases_old_selection_before_loading_and_retries_failures(self):

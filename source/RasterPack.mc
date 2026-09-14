@@ -22,7 +22,16 @@ class RasterCell {
 module RasterPack {
     const OVERVIEW = 13;
     const DETAIL = 15;
+    const CLOSE = 16;
     const MAX_VISIBLE = 16;
+
+    function resourceZoom(zoom) {
+        return zoom == CLOSE ? DETAIL : zoom;
+    }
+
+    function scaleFor(zoom) {
+        return zoom == CLOSE ? 2.0d : 1.0d;
+    }
 
     function contains(lat, lon) {
         return lon >= RasterMapIndex.WEST && lon <= RasterMapIndex.EAST
@@ -30,18 +39,20 @@ module RasterPack {
     }
 
     function visibleCells(lat, lon, zoom, width, height) as Array<RasterCell> {
-        var cols = RasterMapIndex.cols(zoom);
-        var rows = RasterMapIndex.rows(zoom);
+        var sourceZoom = resourceZoom(zoom);
+        var scale = scaleFor(zoom);
+        var cols = RasterMapIndex.cols(sourceZoom);
+        var rows = RasterMapIndex.rows(sourceZoom);
         if (cols == null || rows == null) { return []; }
 
-        var cx = Mercator.lonToWorldX(lon, zoom);
-        var cy = Mercator.latToWorldY(lat, zoom);
-        var left = cx - width / 2.0;
-        var top = cy - height / 2.0;
-        var right = left + width;
-        var bottom = top + height;
-        var originX = RasterMapIndex.originX(zoom);
-        var originY = RasterMapIndex.originY(zoom);
+        var cx = Mercator.lonToWorldX(lon, sourceZoom);
+        var cy = Mercator.latToWorldY(lat, sourceZoom);
+        var left = cx - width / (2.0d * scale);
+        var top = cy - height / (2.0d * scale);
+        var right = left + width / scale;
+        var bottom = top + height / scale;
+        var originX = RasterMapIndex.originX(sourceZoom);
+        var originY = RasterMapIndex.originY(sourceZoom);
         var size = RasterMapIndex.TILE_SIZE;
 
         var col0 = Math.floor((left - originX) / size).toNumber();
@@ -56,13 +67,13 @@ module RasterPack {
         var cells = [] as Array<RasterCell>;
         for (var row = row0; row <= row1 && cells.size() < MAX_VISIBLE; row += 1) {
             for (var col = col0; col <= col1 && cells.size() < MAX_VISIBLE; col += 1) {
-                var resource = RasterMapIndex.resourceAt(zoom, col, row);
+                var resource = RasterMapIndex.resourceAt(sourceZoom, col, row);
                 if (resource != null) {
                     cells.add(new RasterCell(
                         col,
                         row,
-                        originX + col * size - left,
-                        originY + row * size - top,
+                        (originX + col * size - left) * scale,
+                        (originY + row * size - top) * scale,
                         resource
                     ));
                 }

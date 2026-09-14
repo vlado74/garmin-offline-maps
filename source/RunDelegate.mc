@@ -22,11 +22,11 @@ class RunDelegate extends WatchUi.InputDelegate {
             return true;
         }
         if (key == WatchUi.KEY_UP) {
-            _view.setZoom(RasterPack.DETAIL);
+            _view.zoomIn();
             return true;
         }
         if (key == WatchUi.KEY_DOWN) {
-            _view.setZoom(RasterPack.OVERVIEW);
+            _view.zoomOut();
             return true;
         }
         if (key == WatchUi.KEY_ESC && _controller.hasSession()) {

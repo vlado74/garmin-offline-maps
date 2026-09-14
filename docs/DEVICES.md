@@ -13,7 +13,7 @@ coordinate arrays, samples at 5 m, rejects jumps above 200 m, and compacts at
 Install the PRG, go outdoors, and wait for the green start state. Then:
 
 1. start a short run with START/STOP;
-2. switch detail and overview with UP and DOWN;
+2. use UP and DOWN to cross all three overview, detail, and close levels;
 3. hold UP/MENU twice and verify that the metrics band hides and returns;
 4. cross at least one raster-cell boundary and check for seams or blank cells;
 5. pause and resume, confirming the same timer and trail continue;

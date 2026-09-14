@@ -10,12 +10,17 @@ class RasterTileStore {
     hidden var _cells as Array<RasterCell>;
     hidden var _bitmaps as Array<Object?>;
     hidden var _loadFailed;
+    hidden var _closeTransform;
+    hidden var _closeOptions;
 
     function initialize() {
         _zoom = null;
         _cells = [];
         _bitmaps = [];
         _loadFailed = false;
+        _closeTransform = new Graphics.AffineTransform();
+        _closeTransform.scale(2.0f, 2.0f);
+        _closeOptions = {:transform => _closeTransform};
     }
 
     function prepare(lat, lon, zoom, width, height) {
@@ -55,11 +60,13 @@ class RasterTileStore {
         dc.clear();
         for (var i = 0; i < _cells.size(); i += 1) {
             if (_bitmaps[i] != null) {
-                dc.drawBitmap(
-                    Math.floor(_cells[i].x).toNumber(),
-                    Math.floor(_cells[i].y).toNumber(),
-                    _bitmaps[i]
-                );
+                var x = Math.floor(_cells[i].x).toNumber();
+                var y = Math.floor(_cells[i].y).toNumber();
+                if (_zoom == RasterPack.CLOSE) {
+                    dc.drawBitmap2(x, y, _bitmaps[i], _closeOptions);
+                } else {
+                    dc.drawBitmap(x, y, _bitmaps[i]);
+                }
             }
         }
     }

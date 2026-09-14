@@ -11,7 +11,7 @@ coordinates, signing keys, previews, and `.prg` files are ignored by Git.
 ## What the watch shows
 
 - north-up map, always centred on the latest usable GPS fix;
-- overview at zoom 13 and street detail at zoom 15;
+- overview at zoom 13, street detail at zoom 15, and a 2x close view;
 - a cyan breadcrumb sampled every 5 m and bounded to 512 points;
 - elapsed time, distance in kilometres, and average pace in min/km;
 - clear GPS, map, recording, pause, and save-failure states;
@@ -22,8 +22,8 @@ Only physical keys change state:
 | Key | Action |
 |---|---|
 | START/STOP | start, pause, or resume the same activity |
-| UP | detailed map |
-| DOWN | overview map |
+| UP | zoom in: overview → detail → close |
+| DOWN | zoom out: close → detail → overview |
 | hold UP/MENU | hide or show the time/distance/pace band |
 | BACK | save/discard confirmation when a session exists |
 
