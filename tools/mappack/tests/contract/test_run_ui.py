@@ -27,6 +27,7 @@ class TestRunUi(unittest.TestCase):
         self.assertRegex(delegate, r"KEY_ENTER[\s\S]*?_controller\.toggle\(\)")
         self.assertRegex(delegate, r"KEY_UP[\s\S]*?RasterPack\.DETAIL")
         self.assertRegex(delegate, r"KEY_DOWN[\s\S]*?RasterPack\.OVERVIEW")
+        self.assertRegex(delegate, r"KEY_LIGHT[\s\S]*?_view\.toggleDataBand\(\)")
         self.assertRegex(delegate, r"KEY_ESC[\s\S]*?_controller\.hasSession\(\)")
         self.assertIn("new WatchUi.Confirmation", delegate)
 
@@ -68,6 +69,8 @@ class TestRunUi(unittest.TestCase):
         view = source("RunMapView.mc")
         self.assertIn("const DATA_BAND_HEIGHT = 52", view)
         self.assertIn("const DATA_ROW_Y = 52", view)
+        self.assertIn("function toggleDataBand()", view)
+        self.assertRegex(view, r"if \(_showDataBand\) \{ drawDataBand\(dc\); \}")
         self.assertIn("timerMs()", view)
         self.assertIn("distanceMetres()", view)
         self.assertIn("averagePaceSeconds()", view)

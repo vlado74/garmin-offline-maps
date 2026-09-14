@@ -29,6 +29,10 @@ class RunDelegate extends WatchUi.InputDelegate {
             _view.setZoom(RasterPack.OVERVIEW);
             return true;
         }
+        if (key == WatchUi.KEY_LIGHT) {
+            _view.toggleDataBand();
+            return true;
+        }
         if (key == WatchUi.KEY_ESC && _controller.hasSession()) {
             var prompt = WatchUi.loadResource(Rez.Strings.SaveActivity) as String;
             WatchUi.pushView(new WatchUi.Confirmation(prompt),

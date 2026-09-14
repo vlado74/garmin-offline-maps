@@ -15,6 +15,7 @@ class RunMapView extends WatchUi.View {
     hidden var _lon;
     hidden var _zoom;
     hidden var _gpsReady;
+    hidden var _showDataBand;
 
     function initialize(store, trail, controller) {
         View.initialize();
@@ -27,6 +28,7 @@ class RunMapView extends WatchUi.View {
         _lon = RasterMapIndex.CENTER_LON;
         _zoom = RasterPack.OVERVIEW;
         _gpsReady = false;
+        _showDataBand = true;
     }
 
     function onLayout(dc) {
@@ -66,6 +68,12 @@ class RunMapView extends WatchUi.View {
 
     function zoom() { return _zoom; }
 
+    //! Give the map the full screen on demand while keeping recording active.
+    function toggleDataBand() {
+        _showDataBand = !_showDataBand;
+        WatchUi.requestUpdate();
+    }
+
     function release() { _store.clear(); }
 
     function onUpdate(dc) {
@@ -74,7 +82,7 @@ class RunMapView extends WatchUi.View {
         _trail.draw(dc, _lat, _lon, _zoom, _width, _height);
         if (_gpsReady) { drawMarker(dc); }
         drawStatus(dc);
-        drawDataBand(dc);
+        if (_showDataBand) { drawDataBand(dc); }
     }
 
     hidden function drawAttribution(dc) {

@@ -14,10 +14,11 @@ Install the PRG, go outdoors, and wait for the green start state. Then:
 
 1. start a short run with START/STOP;
 2. switch detail and overview with UP and DOWN;
-3. cross at least one raster-cell boundary and check for seams or blank cells;
-4. pause and resume, confirming the same timer and trail continue;
-5. press BACK, save, and synchronize the watch;
-6. confirm Garmin Connect shows one street-running activity with route geometry.
+3. press LIGHT twice and verify that the metrics band hides and returns;
+4. cross at least one raster-cell boundary and check for seams or blank cells;
+5. pause and resume, confirming the same timer and trail continue;
+6. press BACK, save, and synchronize the watch;
+7. confirm Garmin Connect shows one street-running activity with route geometry.
 
 Repeat briefly with GPS loss or outside the pack. The status should turn red and
 FIT recording must remain recoverable.
