@@ -17,6 +17,7 @@ class LocationTracker {
     hidden var _lat;
     hidden var _lon;
     hidden var _hasFix;
+    hidden var _accuracy;
     hidden var _heading;
     hidden var _hasHeading;
     hidden var _onFix;
@@ -26,6 +27,7 @@ class LocationTracker {
         _lat = 0.0d;
         _lon = 0.0d;
         _hasFix = false;
+        _accuracy = Position.QUALITY_NOT_AVAILABLE;
         _heading = 0.0;
         _hasHeading = false;
         _onFix = onFix;
@@ -35,6 +37,11 @@ class LocationTracker {
     function lat() { return _lat; }
     function lon() { return _lon; }
     function hasFix() { return _hasFix; }
+    function accuracy() { return _accuracy; }
+    function hasUsableFix() {
+        return _hasFix && (_accuracy == Position.QUALITY_USABLE
+            || _accuracy == Position.QUALITY_GOOD);
+    }
     function hasHeading() { return _hasHeading; }
     function heading() { return _heading; }
 
@@ -107,6 +114,7 @@ class LocationTracker {
         _lat = degrees[0];
         _lon = degrees[1];
         _hasFix = true;
+        _accuracy = info.accuracy;
 
         // Keep taking the GPS course while moving. Gating this on !_hasHeading
         // would latch the very first course forever on any watch whose compass
@@ -132,6 +140,7 @@ class LocationTracker {
         _lat = newLat;
         _lon = newLon;
         _hasFix = true;
+        _accuracy = Position.QUALITY_GOOD;
         if (_onFix != null) { _onFix.invoke(); }
     }
 

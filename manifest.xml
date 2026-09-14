@@ -23,17 +23,7 @@
              floor the code actually needs. docs/DEVICES.md has the survey and
              the models this leaves out. -->
         <iq:products>
-            <!-- Venu -->
-            <iq:product id="venu2"/>
-            <iq:product id="venu2plus"/>
-            <iq:product id="venu2s"/>
-            <iq:product id="venu3"/>
-            <iq:product id="venu3s"/>
-            <iq:product id="venu441mm"/>
-            <iq:product id="venu445mm"/>
-            <iq:product id="venusq2"/>
-            <!-- vivoactive -->
-            <!-- Forerunner -->
+            <iq:product id="fr265s"/>
         </iq:products>
 
         <iq:permissions>
@@ -49,6 +39,7 @@
              list that folder in monkey.jungle's resourcePath. -->
         <iq:languages>
             <iq:language>eng</iq:language>
+            <iq:language>ita</iq:language>
         </iq:languages>
 
         <iq:barrels/>

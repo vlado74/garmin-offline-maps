@@ -8,6 +8,13 @@
     <string id="WaitingForGps">Searching for GPS</string>
     <string id="PinsFull">No room to save that pin</string>
     <string id="OutsideMap">You are outside this map</string>
+    <string id="Start">Start</string>
+    <string id="Pause">Pause</string>
+    <string id="Resume">Resume</string>
+    <string id="SaveActivity">Save activity?</string>
+    <string id="RetrySave">Retry save?</string>
+    <string id="SaveFailed">Save failed</string>
+    <string id="MapFailed">Map unavailable</string>
 
     <!-- First-run card, shown over the map while the built-in demo pack is the
          active map (see source/Onboarding.mc). One string per rendered line:
