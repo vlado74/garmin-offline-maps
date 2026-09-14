@@ -155,7 +155,8 @@ class TestRasterRuntime(unittest.TestCase):
 
     def test_view_releases_bitmaps_when_hidden_and_restores_them_when_shown(self):
         self.assertIn("_store.clear()", function_body(self.view_source, "onHide"))
-        self.assertIn("_store.prepare", function_body(self.view_source, "onShow"))
+        self.assertIn("prepareMap", function_body(self.view_source, "onShow"))
+        self.assertIn("_store.prepare", function_body(self.view_source, "prepareMap"))
 
 
 if __name__ == "__main__":

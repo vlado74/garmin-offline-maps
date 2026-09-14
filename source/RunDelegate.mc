@@ -6,12 +6,37 @@ class RunDelegate extends WatchUi.InputDelegate {
     hidden var _view;
     hidden var _controller;
     hidden var _trail;
+    hidden var _lastDragX;
+    hidden var _lastDragY;
 
     function initialize(view, controller, trail) {
         InputDelegate.initialize();
         _view = view;
         _controller = controller;
         _trail = trail;
+        _lastDragX = 0;
+        _lastDragY = 0;
+    }
+
+    function onDrag(event) {
+        var coordinates = event.getCoordinates();
+        if (event.getType() == WatchUi.DRAG_TYPE_START) {
+            _lastDragX = coordinates[0];
+            _lastDragY = coordinates[1];
+            return true;
+        }
+
+        var dx = coordinates[0] - _lastDragX;
+        var dy = coordinates[1] - _lastDragY;
+        _lastDragX = coordinates[0];
+        _lastDragY = coordinates[1];
+        _view.panBy(dx, dy);
+        return true;
+    }
+
+    function onTap(event) {
+        _view.recenterGps();
+        return true;
     }
 
     function onKey(event) {

@@ -19,11 +19,12 @@ def string_table(path: Path) -> dict[str, str]:
 
 
 class TestRunUi(unittest.TestCase):
-    def test_delegate_uses_only_physical_keys(self):
+    def test_delegate_handles_keys_and_touch_panning(self):
         delegate = source("RunDelegate.mc")
         self.assertIn("class RunDelegate extends WatchUi.InputDelegate", delegate)
-        self.assertNotIn("function onTap", delegate)
-        self.assertNotIn("function onDrag", delegate)
+        self.assertRegex(delegate, r"function onDrag\(event\)[\s\S]*?DRAG_TYPE_START")
+        self.assertRegex(delegate, r"function onDrag\(event\)[\s\S]*?_view\.panBy")
+        self.assertRegex(delegate, r"function onTap\(event\)[\s\S]*?_view\.recenterGps\(\)")
         self.assertRegex(delegate, r"KEY_ENTER[\s\S]*?_controller\.toggle\(\)")
         self.assertRegex(delegate, r"KEY_UP[\s\S]*?_view\.zoomIn\(\)")
         self.assertRegex(delegate, r"KEY_DOWN[\s\S]*?_view\.zoomOut\(\)")
@@ -74,6 +75,12 @@ class TestRunUi(unittest.TestCase):
         self.assertIn("function toggleDataBand()", view)
         self.assertIn("function zoomIn()", view)
         self.assertIn("function zoomOut()", view)
+        self.assertIn("function panBy(dx, dy)", view)
+        self.assertIn("function recenterGps()", view)
+        self.assertIn("_followingGps", view)
+        self.assertIn("_gpsLat", view)
+        self.assertIn("_centreLat", view)
+        self.assertIn("Rez.Strings.TapToRecenter", view)
         self.assertIn("RasterPack.CLOSE", view)
         self.assertRegex(view, r"if \(_showDataBand\) \{ drawDataBand\(dc\); \}")
         self.assertIn("timerMs()", view)
@@ -93,6 +100,7 @@ class TestRunUi(unittest.TestCase):
         self.assertEqual("Salva attività?", italian["SaveActivity"])
         self.assertEqual("Fuori mappa", italian["OutsideMap"])
         self.assertEqual("Ricerca GPS", italian["WaitingForGps"])
+        self.assertEqual("Tocca per GPS", italian["TapToRecenter"])
 
     def test_manifest_targets_only_fr265s_with_both_languages(self):
         manifest = ET.parse(ROOT / "manifest.xml").getroot()

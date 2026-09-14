@@ -9,4 +9,5 @@
     <string id="RetrySave">Riprova salvataggio?</string>
     <string id="SaveFailed">Salvataggio fallito</string>
     <string id="MapFailed">Mappa non disponibile</string>
+    <string id="TapToRecenter">Tocca per GPS</string>
 </resources>

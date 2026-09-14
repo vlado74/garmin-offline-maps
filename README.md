@@ -10,14 +10,14 @@ coordinates, signing keys, previews, and `.prg` files are ignored by Git.
 
 ## What the watch shows
 
-- north-up map, always centred on the latest usable GPS fix;
+- north-up map that follows GPS until manually panned;
 - overview at zoom 13, street detail at zoom 15, and a 2x close view;
 - a cyan breadcrumb sampled every 5 m and bounded to 512 points;
 - elapsed time, distance in kilometres, and average pace in min/km;
 - clear GPS, map, recording, pause, and save-failure states;
 - a FIT street-running activity that synchronizes through Garmin Connect.
 
-Only physical keys change state:
+Controls:
 
 | Key | Action |
 |---|---|
@@ -26,6 +26,10 @@ Only physical keys change state:
 | DOWN | zoom out: close → detail → overview |
 | hold UP/MENU | hide or show the time/distance/pace band |
 | BACK | save/discard confirmation when a session exists |
+
+Drag a finger across the display to explore the surrounding map. GPS and the
+recorded trail stay in their true positions. Tap once to centre the map on GPS
+and resume automatic following.
 
 ## Build the demo
 

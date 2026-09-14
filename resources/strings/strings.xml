@@ -9,4 +9,5 @@
     <string id="RetrySave">Retry save?</string>
     <string id="SaveFailed">Save failed</string>
     <string id="MapFailed">Map unavailable</string>
+    <string id="TapToRecenter">Tap for GPS</string>
 </resources>
