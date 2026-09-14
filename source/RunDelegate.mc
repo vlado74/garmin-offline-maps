@@ -48,7 +48,6 @@ class RunDelegate extends WatchUi.InputDelegate {
         if (key == WatchUi.KEY_ENTER) {
             var starting = _controller.state() == :ready;
             if (_controller.toggle() && starting) { _laps.clear(); }
-            _view.showDataBandTemporarily();
             WatchUi.requestUpdate();
             return true;
         }
@@ -61,7 +60,7 @@ class RunDelegate extends WatchUi.InputDelegate {
             return true;
         }
         if (key == WatchUi.KEY_MENU) {
-            _view.toggleDataBand();
+            _view.toggleLapDetails();
             return true;
         }
         if (key == WatchUi.KEY_ESC && _controller.hasSession()) {

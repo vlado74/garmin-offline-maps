@@ -15,4 +15,8 @@
     <string id="LapDistance">Distance</string>
     <string id="LapPace">Pace</string>
     <string id="LapButton">L</string>
+    <string id="RunDetails">Run details</string>
+    <string id="TotalTime">Time</string>
+    <string id="TotalDistance">Distance</string>
+    <string id="AveragePace">Average pace</string>
 </resources>

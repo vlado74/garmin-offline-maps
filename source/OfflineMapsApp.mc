@@ -37,7 +37,7 @@ class OfflineMapsApp extends Application.AppBase {
 
     function onTick() as Void {
         if (_view != null) {
-            _view.updateDataBandVisibility();
+            _view.updateOverlayVisibility();
             WatchUi.requestUpdate();
         }
     }

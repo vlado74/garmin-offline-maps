@@ -5,11 +5,6 @@ import Toybox.WatchUi;
 
 //! North-up raster map with GPS following and touch exploration.
 class RunMapView extends WatchUi.View {
-    const DATA_BAND_HEIGHT = 52;
-    const DATA_ROW_Y = 52;
-    const DATA_TOP_ROW_Y = 30;
-    const DATA_BOTTOM_ROW_Y = 58;
-    const DATA_BAND_VISIBLE_MS = 8000;
     const LABEL_BUTTON_OFFSET = 68;
     const LABEL_BUTTON_RADIUS = 22;
     const LABEL_BUTTON_HIT_RADIUS = 28;
@@ -31,8 +26,6 @@ class RunMapView extends WatchUi.View {
     hidden var _hasGpsHeading;
     hidden var _zoom;
     hidden var _gpsReady;
-    hidden var _showDataBand;
-    hidden var _dataBandHideAt;
     hidden var _followingGps;
     hidden var _hasGpsPosition;
     hidden var _showStreetLabels;
@@ -56,8 +49,6 @@ class RunMapView extends WatchUi.View {
         _hasGpsHeading = false;
         _zoom = RasterPack.OVERVIEW;
         _gpsReady = false;
-        _showDataBand = true;
-        _dataBandHideAt = System.getTimer() + DATA_BAND_VISIBLE_MS;
         _followingGps = true;
         _hasGpsPosition = false;
         _showStreetLabels = true;
@@ -154,27 +145,13 @@ class RunMapView extends WatchUi.View {
         }
     }
 
-    //! Give the map the full screen on demand while keeping recording active.
-    function toggleDataBand() {
-        if (_showDataBand) {
-            _showDataBand = false;
-        } else {
-            showDataBandTemporarily();
-        }
+    function toggleLapDetails() {
+        _showLapDetails = !_showLapDetails;
+        _lapDetailsHideAt = null;
         WatchUi.requestUpdate();
     }
 
-    //! Reveal metrics briefly after launch, START/STOP, or a manual request.
-    function showDataBandTemporarily() {
-        _showDataBand = true;
-        _dataBandHideAt = System.getTimer() + DATA_BAND_VISIBLE_MS;
-        WatchUi.requestUpdate();
-    }
-
-    function updateDataBandVisibility() {
-        if (_showDataBand && System.getTimer() >= _dataBandHideAt) {
-            _showDataBand = false;
-        }
+    function updateOverlayVisibility() {
         if (_showLapDetails && _lapDetailsHideAt != null
             && System.getTimer() >= _lapDetailsHideAt) {
             _showLapDetails = false;
@@ -197,9 +174,7 @@ class RunMapView extends WatchUi.View {
         var lapDy = y - buttonY;
         if (lapDx >= -LABEL_BUTTON_HIT_RADIUS && lapDx <= LABEL_BUTTON_HIT_RADIUS
             && lapDy >= -LABEL_BUTTON_HIT_RADIUS && lapDy <= LABEL_BUTTON_HIT_RADIUS) {
-            _showLapDetails = !_showLapDetails;
-            _lapDetailsHideAt = null;
-            WatchUi.requestUpdate();
+            toggleLapDetails();
             return true;
         }
         var markerDx = x - MARKER_BUTTON_X;
@@ -242,7 +217,6 @@ class RunMapView extends WatchUi.View {
         drawNorthIndicator(dc);
         drawScaleBar(dc);
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
-        if (_showDataBand) { drawDataBand(dc); }
         drawStatus(dc);
         if (_showLapDetails) { drawLapDetails(dc); }
         drawLapButton(dc);
@@ -315,23 +289,34 @@ class RunMapView extends WatchUi.View {
     }
 
     hidden function drawLapDetails(dc) {
-        var panelX = 42;
-        var panelY = 82;
-        var panelWidth = _width - 84;
+        var panelX = 30;
+        var panelY = 30;
+        var panelWidth = _width - 60;
         dc.setColor(RunStyle.BAND, RunStyle.BAND);
-        dc.fillRectangle(panelX, panelY, panelWidth, 190);
+        dc.fillRectangle(panelX, panelY, panelWidth, 252);
         dc.setColor(RunStyle.BAND_TEXT, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(_width / 2, panelY + 12, Graphics.FONT_SMALL,
-                    WatchUi.loadResource(Rez.Strings.Laps) + " " + _laps.count().format("%d"),
+        dc.drawText(_width / 2, panelY + 10, Graphics.FONT_SMALL,
+                    WatchUi.loadResource(Rez.Strings.RunDetails),
                     Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, panelY + 58, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, panelY + 50, Graphics.FONT_XTINY,
+                    WatchUi.loadResource(Rez.Strings.TotalTime) + "  "
+                    + formatTimer(_controller.timerMs()), Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(_width / 2, panelY + 80, Graphics.FONT_XTINY,
+                    WatchUi.loadResource(Rez.Strings.TotalDistance) + "  "
+                    + formatDistance(_controller.distanceMetres()), Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(_width / 2, panelY + 110, Graphics.FONT_XTINY,
+                    WatchUi.loadResource(Rez.Strings.AveragePace) + "  "
+                    + formatPace(_controller.averagePaceSeconds()), Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawLine(panelX + 24, panelY + 144, panelX + panelWidth - 24, panelY + 144);
+        dc.drawText(_width / 2, panelY + 156, Graphics.FONT_XTINY,
+                    WatchUi.loadResource(Rez.Strings.Laps) + "  "
+                    + _laps.count().format("%d"), Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(_width / 2, panelY + 186, Graphics.FONT_XTINY,
                     WatchUi.loadResource(Rez.Strings.LastLap) + "  "
                     + formatLapTime(_laps.lastTimeMs()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, panelY + 94, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, panelY + 216, Graphics.FONT_XTINY,
                     WatchUi.loadResource(Rez.Strings.LapDistance) + "  "
-                    + formatDistance(_laps.lastDistanceMetres()), Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(_width / 2, panelY + 130, Graphics.FONT_XTINY,
-                    WatchUi.loadResource(Rez.Strings.LapPace) + "  "
+                    + formatDistance(_laps.lastDistanceMetres()) + "   "
                     + formatPace(_laps.lastPaceSeconds()), Graphics.TEXT_JUSTIFY_CENTER);
     }
 
@@ -450,28 +435,6 @@ class RunMapView extends WatchUi.View {
         dc.drawText(_width / 2, _height - 42, Graphics.FONT_XTINY,
                     WatchUi.loadResource(Rez.Strings.TapToRecenter),
                     Graphics.TEXT_JUSTIFY_CENTER);
-    }
-
-    hidden function drawDataBand(dc) {
-        dc.setColor(RunStyle.BAND, RunStyle.BAND);
-        dc.fillPolygon([
-            [96, 26],
-            [132, 10],
-            [_width - 82, 10],
-            [_width - 22, 48],
-            [_width - 38, 82],
-            [96, 82]
-        ]);
-        dc.setColor(RunStyle.BAND_TEXT, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(218, DATA_TOP_ROW_Y, Graphics.FONT_XTINY,
-                    formatTimer(_controller.timerMs()),
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(158, DATA_BOTTOM_ROW_Y, Graphics.FONT_XTINY,
-                    formatDistance(_controller.distanceMetres()),
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(260, DATA_BOTTOM_ROW_Y, Graphics.FONT_XTINY,
-                    formatPace(_controller.averagePaceSeconds()),
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     hidden function drawStatus(dc) {
