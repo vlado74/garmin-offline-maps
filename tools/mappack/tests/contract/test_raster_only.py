@@ -42,6 +42,17 @@ class TestRasterOnlyRuntime(unittest.TestCase):
         self.assertIn("raster-pack:", makefile)
         self.assertIn("raster-preview:", makefile)
 
+    def test_release_helpers_match_the_raster_app(self):
+        regression = (ROOT / "tools/regression.sh").read_text(encoding="utf-8")
+        push_watch = (ROOT / "tools/push-watch.sh").read_text(encoding="utf-8")
+        guidance = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+        self.assertIn("if make raster-demo", regression)
+        self.assertIn('${1:-fr265s}', push_watch)
+        self.assertNotIn("venu3", push_watch.lower())
+        self.assertIn("offline raster", guidance.lower())
+        self.assertNotIn("offline vector", guidance.lower())
+        self.assertFalse((ROOT / ".claude").exists())
+
     def test_personal_map_coordinates_are_not_in_versioned_inputs(self):
         forbidden = ("Bald" + "ovinetti", "41." + "8318579", "12." + "4946125")
         roots = [ROOT / "source", ROOT / "docs", ROOT / "tools/mappack/tests"]

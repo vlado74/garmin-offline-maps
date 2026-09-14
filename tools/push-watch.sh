@@ -7,8 +7,7 @@
 # this is a few seconds and needs neither a phone nor an internet connection.
 # Releases stay for when a build is worth publishing, not for testing one.
 #
-#   tools/push-watch.sh                # venu3
-#   tools/push-watch.sh venu3s         # another device
+#   tools/push-watch.sh                # fr265s
 #
 # Garmin watches speak MTP, which macOS does not mount natively, hence libmtp
 # rather than a copy into /Volumes:  brew install libmtp
@@ -17,11 +16,11 @@
 # libmtp then reports "No raw devices found" as though it were unplugged.
 set -euo pipefail
 
-DEVICE="${1:-venu3}"
+DEVICE="${1:-fr265s}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PRG="$ROOT/bin/offline-maps.prg"
 
-for tool in mtp-detect mtp-folders mtp-sendfile; do
+for tool in mtp-detect mtp-folders mtp-files mtp-delfile mtp-sendfile; do
     command -v "$tool" >/dev/null 2>&1 || {
         echo "!! $tool not found. brew install libmtp" >&2
         exit 1
@@ -63,4 +62,4 @@ fi
 echo ">> sending $(basename "$PRG") to folder $FOLDER_ID"
 mtp-sendfile -f "$FOLDER_ID" "$PRG" offline-maps.prg
 
-echo ">> done. Unplug, then open Offline Maps. Check About for the version."
+echo ">> done. Unplug, then open EUR Run Map."

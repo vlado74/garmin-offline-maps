@@ -80,7 +80,7 @@ build: $(KEY)
 	$(MONKEYC) -f monkey.jungle -o $(PRG) -y $(KEY) -d $(DEVICE) -w
 	@ls -lh $(PRG)
 
-watch: build
+watch:
 	@tools/push-watch.sh $(DEVICE)
 
 package: $(KEY)

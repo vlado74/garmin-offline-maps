@@ -18,11 +18,15 @@ bad() { printf '  FAIL  %s\n' "$1"; fail=$((fail + 1)); }
 make test >/dev/null 2>&1 && ok "test suite" || bad "test suite"
 make lint >/dev/null 2>&1 && ok "Python lint"
 
-make raster-demo >/dev/null 2>&1
-if git diff --exit-code --quiet -- mapdata/raster-demo source/generated/RasterMapIndex.mc; then
-    ok "synthetic raster pack is reproducible"
+if make raster-demo >/dev/null 2>&1; then
+    if git diff --exit-code --quiet -- mapdata/raster-demo source/generated/RasterMapIndex.mc; then
+        ok "synthetic raster pack is reproducible"
+    else
+        bad "synthetic raster pack drifted"
+        git checkout -- mapdata/raster-demo source/generated/RasterMapIndex.mc
+    fi
 else
-    bad "synthetic raster pack drifted"
+    bad "synthetic raster pack generation"
     git checkout -- mapdata/raster-demo source/generated/RasterMapIndex.mc
 fi
 
