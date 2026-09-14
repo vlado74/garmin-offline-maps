@@ -4,6 +4,7 @@ import Toybox.WatchUi;
 //! North-up, GPS-centred raster map base view.
 class RunMapView extends WatchUi.View {
     const DATA_BAND_HEIGHT = 52;
+    const DATA_ROW_Y = 52;
 
     hidden var _store;
     hidden var _trail;
@@ -98,15 +99,15 @@ class RunMapView extends WatchUi.View {
 
     hidden function drawDataBand(dc) {
         dc.setColor(RunStyle.BAND, RunStyle.BAND);
-        dc.fillRectangle(0, 0, _width, DATA_BAND_HEIGHT);
+        dc.fillRectangle(0, 26, _width, DATA_BAND_HEIGHT);
         dc.setColor(RunStyle.BAND_TEXT, Graphics.COLOR_TRANSPARENT);
-        var y = 26;
-        dc.drawText(84, y, Graphics.FONT_XTINY, formatTimer(_controller.timerMs()),
+        dc.drawText(90, DATA_ROW_Y, Graphics.FONT_XTINY,
+                    formatTimer(_controller.timerMs()),
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(_width / 2, y, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, DATA_ROW_Y, Graphics.FONT_XTINY,
                     formatDistance(_controller.distanceMetres()),
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(_width - 84, y, Graphics.FONT_XTINY,
+        dc.drawText(_width - 90, DATA_ROW_Y, Graphics.FONT_XTINY,
                     formatPace(_controller.averagePaceSeconds()),
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
@@ -137,7 +138,7 @@ class RunMapView extends WatchUi.View {
             colour = RunStyle.READY;
         }
         dc.setColor(colour, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(_width / 2, DATA_BAND_HEIGHT + 3, Graphics.FONT_XTINY,
+        dc.drawText(_width / 2, 80, Graphics.FONT_XTINY,
                     text, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
@@ -151,12 +152,13 @@ class RunMapView extends WatchUi.View {
     }
 
     hidden function formatDistance(metres) {
-        return (metres / 1000.0d).format("%.2f") + "k";
+        return (metres / 1000.0d).format("%.2f") + " km";
     }
 
     hidden function formatPace(secondsPerKm) {
         if (secondsPerKm == null) { return "--:--"; }
         var seconds = secondsPerKm.toNumber();
-        return (seconds / 60).format("%d") + ":" + (seconds % 60).format("%02d");
+        return (seconds / 60).format("%d") + ":"
+            + (seconds % 60).format("%02d") + "/km";
     }
 }

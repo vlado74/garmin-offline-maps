@@ -60,15 +60,21 @@ class TestRunUi(unittest.TestCase):
         self.assertIn("function hasUsableFix()", tracker)
         self.assertIn("Position.QUALITY_USABLE", tracker)
         self.assertIn("Position.QUALITY_GOOD", tracker)
+        null_fix = tracker.split("function onPosition", 1)[1]
+        self.assertRegex(null_fix, r"position == null[\s\S]*?_hasFix = false")
+        self.assertRegex(null_fix, r"position == null[\s\S]*?_onFix\.invoke\(\)")
 
     def test_view_draws_compact_metrics_and_statuses(self):
         view = source("RunMapView.mc")
         self.assertIn("const DATA_BAND_HEIGHT = 52", view)
+        self.assertIn("const DATA_ROW_Y = 52", view)
         self.assertIn("timerMs()", view)
         self.assertIn("distanceMetres()", view)
         self.assertIn("averagePaceSeconds()", view)
         for resource in ("Start", "Pause", "SaveFailed", "OutsideMap", "WaitingForGps"):
             self.assertIn(f"Rez.Strings.{resource}", view)
+        self.assertIn('+ " km"', view)
+        self.assertIn('+ "/km"', view)
 
     def test_english_and_italian_have_the_same_string_ids(self):
         english = string_table(ROOT / "resources/strings/strings.xml")
