@@ -8,6 +8,9 @@ class RunMapView extends WatchUi.View {
     const DATA_BAND_HEIGHT = 52;
     const DATA_ROW_Y = 52;
     const DATA_BAND_VISIBLE_MS = 8000;
+    const LABEL_BUTTON_OFFSET = 68;
+    const LABEL_BUTTON_RADIUS = 22;
+    const LABEL_BUTTON_HIT_RADIUS = 28;
 
     hidden var _store;
     hidden var _trail;
@@ -26,6 +29,7 @@ class RunMapView extends WatchUi.View {
     hidden var _dataBandHideAt;
     hidden var _followingGps;
     hidden var _hasGpsPosition;
+    hidden var _showStreetLabels;
 
     function initialize(store, trail, controller) {
         View.initialize();
@@ -46,6 +50,7 @@ class RunMapView extends WatchUi.View {
         _dataBandHideAt = System.getTimer() + DATA_BAND_VISIBLE_MS;
         _followingGps = true;
         _hasGpsPosition = false;
+        _showStreetLabels = true;
     }
 
     function onLayout(dc) {
@@ -159,6 +164,23 @@ class RunMapView extends WatchUi.View {
         }
     }
 
+    //! Consume taps on the close-zoom label control; all other taps keep
+    //! their existing GPS-recentre behavior in RunDelegate.
+    function handleTap(x, y) {
+        if (_zoom != RasterPack.CLOSE) { return false; }
+        var buttonX = _width - LABEL_BUTTON_OFFSET;
+        var buttonY = _height - LABEL_BUTTON_OFFSET;
+        var dx = x - buttonX;
+        var dy = y - buttonY;
+        if (dx < -LABEL_BUTTON_HIT_RADIUS || dx > LABEL_BUTTON_HIT_RADIUS
+            || dy < -LABEL_BUTTON_HIT_RADIUS || dy > LABEL_BUTTON_HIT_RADIUS) {
+            return false;
+        }
+        _showStreetLabels = !_showStreetLabels;
+        WatchUi.requestUpdate();
+        return true;
+    }
+
     function release() { _store.clear(); }
 
     hidden function prepareMap() {
@@ -168,13 +190,36 @@ class RunMapView extends WatchUi.View {
     function onUpdate(dc) {
         _store.draw(dc);
         drawAttribution(dc);
-        StreetLabelOverlay.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
+        if (_showStreetLabels) {
+            StreetLabelOverlay.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
+        }
         _trail.draw(dc, _centreLat, _centreLon, _zoom, _width, _height);
         drawHomeMarker(dc);
         if (_gpsReady) { drawMarker(dc); }
         drawStatus(dc);
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
         if (_showDataBand) { drawDataBand(dc); }
+        drawStreetLabelButton(dc);
+    }
+
+    hidden function drawStreetLabelButton(dc) {
+        if (_zoom != RasterPack.CLOSE) { return; }
+        var x = _width - LABEL_BUTTON_OFFSET;
+        var y = _height - LABEL_BUTTON_OFFSET;
+        dc.setColor(RunStyle.MARKER_OUTLINE, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(x, y, LABEL_BUTTON_RADIUS);
+        dc.setColor(_showStreetLabels ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY,
+                    Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(x, y, LABEL_BUTTON_RADIUS - 3);
+        dc.setColor(_showStreetLabels ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE,
+                    Graphics.COLOR_TRANSPARENT);
+        dc.drawText(x, y, Graphics.FONT_XTINY, "Aa",
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        if (!_showStreetLabels) {
+            dc.setColor(RunStyle.ERROR, Graphics.COLOR_TRANSPARENT);
+            dc.setPenWidth(3);
+            dc.drawLine(x - 11, y + 10, x + 11, y - 10);
+        }
     }
 
     hidden function drawAttribution(dc) {

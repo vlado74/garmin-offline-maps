@@ -35,6 +35,8 @@ class RunDelegate extends WatchUi.InputDelegate {
     }
 
     function onTap(event) {
+        var coordinates = event.getCoordinates();
+        if (_view.handleTap(coordinates[0], coordinates[1])) { return true; }
         _view.recenterGps();
         return true;
     }
