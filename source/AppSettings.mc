@@ -11,7 +11,9 @@ module AppSettings {
         Application.Properties.setValue(key, settingValue);
     }
 
-    function showTouchButtons() { return value("ShowTouchButtons", true); }
+    function showLapButton() { return value("ShowLapButton", true); }
+    function showMarkerButton() { return value("ShowMarkerButton", true); }
+    function showLabelButton() { return value("ShowLabelButton", true); }
     function showStreetLabels() { return value("ShowStreetLabels", true); }
     function markerMode() { return value("MarkerMode", MarkerMode.ALL); }
     function detailTextColor() { return value("DetailTextColor", 0xFFFFFF); }

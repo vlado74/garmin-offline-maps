@@ -1,5 +1,11 @@
 <settings>
-    <setting propertyKey="@Properties.ShowTouchButtons" title="@Strings.SettingTouchButtons">
+    <setting propertyKey="@Properties.ShowLapButton" title="@Strings.SettingLapButton">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.ShowMarkerButton" title="@Strings.SettingMarkerButton">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.ShowLabelButton" title="@Strings.SettingLabelButton">
         <settingConfig type="boolean" />
     </setting>
     <setting propertyKey="@Properties.ShowStreetLabels" title="@Strings.SettingStreetLabels">

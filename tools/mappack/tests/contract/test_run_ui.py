@@ -144,32 +144,38 @@ class TestRunUi(unittest.TestCase):
         properties = ET.parse(ROOT / "resources/properties.xml").getroot()
         property_ids = {node.attrib["id"] for node in properties.findall(".//property")}
         self.assertEqual({
-            "ShowTouchButtons", "ShowStreetLabels", "MarkerMode",
+            "ShowLapButton", "ShowMarkerButton", "ShowLabelButton",
+            "ShowStreetLabels", "MarkerMode",
             "DetailTextColor", "DetailBackgroundColor",
             "AutoLapDetails", "LapDetailSeconds",
         }, property_ids)
         settings = ET.parse(ROOT / "resources/settings/settings.xml").getroot()
-        self.assertEqual(7, len(settings.findall("setting")))
+        self.assertEqual(9, len(settings.findall("setting")))
         app = source("OfflineMapsApp.mc")
         view = source("RunMapView.mc")
         self.assertIn("function onSettingsChanged()", app)
         self.assertIn("_view.reloadSettings()", app)
         self.assertIn("function reloadSettings()", view)
-        self.assertIn("AppSettings.showTouchButtons()", view)
+        self.assertIn("AppSettings.showLapButton()", view)
+        self.assertIn("AppSettings.showMarkerButton()", view)
+        self.assertIn("AppSettings.showLabelButton()", view)
         self.assertIn("AppSettings.showStreetLabels()", view)
         self.assertIn("AppSettings.markerMode()", view)
         self.assertIn("AppSettings.detailTextColor()", view)
         self.assertIn("AppSettings.detailBackgroundColor()", view)
         self.assertIn("AppSettings.autoLapDetails()", view)
         self.assertIn("AppSettings.lapDetailDurationMs()", view)
-        self.assertRegex(view, r"if \(_showTouchButtons\)[\s\S]*?drawLapButton")
+        self.assertRegex(view, r"if \(_showLapButton\)[\s\S]*?drawLapButton")
+        self.assertRegex(view, r"if \(_showMarkerButton\)[\s\S]*?drawMarkerModeButton")
+        self.assertRegex(view, r"if \(_showLabelButton\)[\s\S]*?drawStreetLabelButton")
 
     def test_watch_settings_menu_persists_every_option(self):
         menu = source("RunSettingsMenu.mc")
         self.assertIn("class RunSettingsMenu extends WatchUi.Menu2", menu)
         self.assertIn("class RunSettingsMenuDelegate extends WatchUi.Menu2InputDelegate", menu)
         for setting in (
-            "ShowTouchButtons", "ShowStreetLabels", "MarkerMode",
+            "ShowLapButton", "ShowMarkerButton", "ShowLabelButton",
+            "ShowStreetLabels", "MarkerMode",
             "DetailTextColor", "DetailBackgroundColor",
             "AutoLapDetails", "LapDetailSeconds",
         ):

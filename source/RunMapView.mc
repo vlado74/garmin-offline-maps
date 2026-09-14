@@ -31,7 +31,9 @@ class RunMapView extends WatchUi.View {
     hidden var _showLapDetails;
     hidden var _lapDetailsHideAt;
     hidden var _markerMode;
-    hidden var _showTouchButtons;
+    hidden var _showLapButton;
+    hidden var _showMarkerButton;
+    hidden var _showLabelButton;
     hidden var _detailTextColor;
     hidden var _detailBackgroundColor;
     hidden var _autoLapDetails;
@@ -62,7 +64,9 @@ class RunMapView extends WatchUi.View {
     }
 
     function reloadSettings() {
-        _showTouchButtons = AppSettings.showTouchButtons();
+        _showLapButton = AppSettings.showLapButton();
+        _showMarkerButton = AppSettings.showMarkerButton();
+        _showLabelButton = AppSettings.showLabelButton();
         _showStreetLabels = AppSettings.showStreetLabels();
         _markerMode = AppSettings.markerMode();
         _detailTextColor = AppSettings.detailTextColor();
@@ -184,19 +188,20 @@ class RunMapView extends WatchUi.View {
     //! Consume taps on the label control; all other taps keep
     //! their existing GPS-recentre behavior in RunDelegate.
     function handleTap(x, y) {
-        if (!_showTouchButtons) { return false; }
         var lapButtonX = LABEL_BUTTON_OFFSET;
         var buttonY = _height - LABEL_BUTTON_OFFSET;
         var lapDx = x - lapButtonX;
         var lapDy = y - buttonY;
-        if (lapDx >= -LABEL_BUTTON_HIT_RADIUS && lapDx <= LABEL_BUTTON_HIT_RADIUS
+        if (_showLapButton
+            && lapDx >= -LABEL_BUTTON_HIT_RADIUS && lapDx <= LABEL_BUTTON_HIT_RADIUS
             && lapDy >= -LABEL_BUTTON_HIT_RADIUS && lapDy <= LABEL_BUTTON_HIT_RADIUS) {
             toggleLapDetails();
             return true;
         }
         var markerDx = x - MARKER_BUTTON_X;
         var markerDy = y - MARKER_BUTTON_Y;
-        if (markerDx >= -LABEL_BUTTON_HIT_RADIUS && markerDx <= LABEL_BUTTON_HIT_RADIUS
+        if (_showMarkerButton
+            && markerDx >= -LABEL_BUTTON_HIT_RADIUS && markerDx <= LABEL_BUTTON_HIT_RADIUS
             && markerDy >= -LABEL_BUTTON_HIT_RADIUS && markerDy <= LABEL_BUTTON_HIT_RADIUS) {
             _markerMode = (_markerMode + 1) % 3;
             WatchUi.requestUpdate();
@@ -205,7 +210,8 @@ class RunMapView extends WatchUi.View {
         var buttonX = _width - LABEL_BUTTON_OFFSET;
         var dx = x - buttonX;
         var dy = y - buttonY;
-        if (dx < -LABEL_BUTTON_HIT_RADIUS || dx > LABEL_BUTTON_HIT_RADIUS
+        if (!_showLabelButton
+            || dx < -LABEL_BUTTON_HIT_RADIUS || dx > LABEL_BUTTON_HIT_RADIUS
             || dy < -LABEL_BUTTON_HIT_RADIUS || dy > LABEL_BUTTON_HIT_RADIUS) {
             return false;
         }
@@ -236,11 +242,9 @@ class RunMapView extends WatchUi.View {
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
         drawStatus(dc);
         if (_showLapDetails) { drawLapDetails(dc); }
-        if (_showTouchButtons) {
-            drawLapButton(dc);
-            drawMarkerModeButton(dc);
-            drawStreetLabelButton(dc);
-        }
+        if (_showLapButton) { drawLapButton(dc); }
+        if (_showMarkerButton) { drawMarkerModeButton(dc); }
+        if (_showLabelButton) { drawStreetLabelButton(dc); }
     }
 
     hidden function drawMarkerModeButton(dc) {

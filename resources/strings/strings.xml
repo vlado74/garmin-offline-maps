@@ -18,7 +18,9 @@
     <string id="TotalTime">Time</string>
     <string id="TotalDistance">Distance</string>
     <string id="AveragePace">Average pace</string>
-    <string id="SettingTouchButtons">Show touch buttons</string>
+    <string id="SettingLapButton">Show G button</string>
+    <string id="SettingMarkerButton">Show .5/KM button</string>
+    <string id="SettingLabelButton">Show Aa button</string>
     <string id="SettingStreetLabels">Show street names</string>
     <string id="SettingMarkers">Distance markers</string>
     <string id="SettingTextColor">Details text color</string>

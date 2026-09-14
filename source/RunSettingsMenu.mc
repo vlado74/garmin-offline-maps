@@ -9,8 +9,14 @@ class RunSettingsMenu extends WatchUi.Menu2 {
             :disabled=>WatchUi.loadResource(Rez.Strings.Disabled)
         };
         addItem(new WatchUi.ToggleMenuItem(
-            WatchUi.loadResource(Rez.Strings.SettingTouchButtons), states,
-            :touch, AppSettings.showTouchButtons(), null));
+            WatchUi.loadResource(Rez.Strings.SettingLapButton), states,
+            :lapButton, AppSettings.showLapButton(), null));
+        addItem(new WatchUi.ToggleMenuItem(
+            WatchUi.loadResource(Rez.Strings.SettingMarkerButton), states,
+            :markerButton, AppSettings.showMarkerButton(), null));
+        addItem(new WatchUi.ToggleMenuItem(
+            WatchUi.loadResource(Rez.Strings.SettingLabelButton), states,
+            :labelButton, AppSettings.showLabelButton(), null));
         addItem(new WatchUi.ToggleMenuItem(
             WatchUi.loadResource(Rez.Strings.SettingStreetLabels), states,
             :labels, AppSettings.showStreetLabels(), null));
@@ -63,8 +69,12 @@ class RunSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     function onSelect(item as WatchUi.MenuItem) as Void {
         var id = item.getId();
-        if (id == :touch) {
-            AppSettings.setValue("ShowTouchButtons", (item as WatchUi.ToggleMenuItem).isEnabled());
+        if (id == :lapButton) {
+            AppSettings.setValue("ShowLapButton", (item as WatchUi.ToggleMenuItem).isEnabled());
+        } else if (id == :markerButton) {
+            AppSettings.setValue("ShowMarkerButton", (item as WatchUi.ToggleMenuItem).isEnabled());
+        } else if (id == :labelButton) {
+            AppSettings.setValue("ShowLabelButton", (item as WatchUi.ToggleMenuItem).isEnabled());
         } else if (id == :labels) {
             AppSettings.setValue("ShowStreetLabels", (item as WatchUi.ToggleMenuItem).isEnabled());
         } else if (id == :autoLap) {

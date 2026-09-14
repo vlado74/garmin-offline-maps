@@ -1,6 +1,8 @@
 <resources>
     <properties>
-        <property id="ShowTouchButtons" type="boolean">true</property>
+        <property id="ShowLapButton" type="boolean">true</property>
+        <property id="ShowMarkerButton" type="boolean">true</property>
+        <property id="ShowLabelButton" type="boolean">true</property>
         <property id="ShowStreetLabels" type="boolean">true</property>
         <property id="MarkerMode" type="number">0</property>
         <property id="DetailTextColor" type="number">0xFFFFFF</property>
