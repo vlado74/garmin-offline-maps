@@ -24,7 +24,7 @@ Only physical keys change state:
 | START/STOP | start, pause, or resume the same activity |
 | UP | detailed map |
 | DOWN | overview map |
-| LIGHT | hide or show the time/distance/pace band |
+| hold UP/MENU | hide or show the time/distance/pace band |
 | BACK | save/discard confirmation when a session exists |
 
 ## Build the demo

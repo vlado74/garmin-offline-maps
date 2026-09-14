@@ -27,7 +27,8 @@ class TestRunUi(unittest.TestCase):
         self.assertRegex(delegate, r"KEY_ENTER[\s\S]*?_controller\.toggle\(\)")
         self.assertRegex(delegate, r"KEY_UP[\s\S]*?RasterPack\.DETAIL")
         self.assertRegex(delegate, r"KEY_DOWN[\s\S]*?RasterPack\.OVERVIEW")
-        self.assertRegex(delegate, r"KEY_LIGHT[\s\S]*?_view\.toggleDataBand\(\)")
+        self.assertRegex(delegate, r"function onMenu\(\)[\s\S]*?_view\.toggleDataBand\(\)")
+        self.assertNotIn("KEY_LIGHT", delegate)
         self.assertRegex(delegate, r"KEY_ESC[\s\S]*?_controller\.hasSession\(\)")
         self.assertIn("new WatchUi.Confirmation", delegate)
 

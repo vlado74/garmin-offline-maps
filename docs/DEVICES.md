@@ -14,7 +14,7 @@ Install the PRG, go outdoors, and wait for the green start state. Then:
 
 1. start a short run with START/STOP;
 2. switch detail and overview with UP and DOWN;
-3. press LIGHT twice and verify that the metrics band hides and returns;
+3. hold UP/MENU twice and verify that the metrics band hides and returns;
 4. cross at least one raster-cell boundary and check for seams or blank cells;
 5. pause and resume, confirming the same timer and trail continue;
 6. press BACK, save, and synchronize the watch;
