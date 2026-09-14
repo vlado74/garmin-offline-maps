@@ -83,6 +83,7 @@ class TrailModel:
         self.earth_radius_metres = numeric_constant(source, "EARTH_RADIUS_METRES")
         self.lats = []
         self.lons = []
+        self.last_fix = None
 
     @property
     def points(self):
@@ -100,9 +101,15 @@ class TrailModel:
 
     def add(self, lat, lon):
         if self.lats:
-            distance = self.distance(self.lats[-1], self.lons[-1], lat, lon)
-            if distance < self.sample_metres or distance > self.max_jump_metres:
+            jump = self.distance(*self.last_fix, lat, lon)
+            if jump > self.max_jump_metres:
                 return False
+            self.last_fix = (lat, lon)
+            distance = self.distance(self.lats[-1], self.lons[-1], lat, lon)
+            if distance < self.sample_metres:
+                return False
+        else:
+            self.last_fix = (lat, lon)
         if len(self.lats) >= self.max_points:
             indexes = [0] + list(range(2, len(self.lats) - 1, 2)) + [len(self.lats) - 1]
             compact_lats = [self.lats[index] for index in indexes]
@@ -139,6 +146,29 @@ class TestRunTrail(unittest.TestCase):
         self.assertEqual(trail.points[-1][0], first[0] + 699 * 0.00018)
         self.assertEqual(len(trail.lats), len(trail.lons))
         self.assertEqual(trail.sample_metres, 10.0)
+
+    def test_repeated_compaction_keeps_accepting_small_raw_steps(self):
+        trail = TrailModel(self.source)
+        first = (41.0, 12.0)
+        trail.add(*first)
+        latest_stored = trail.points[-1]
+        reached_large_threshold = False
+        stored_after_large_threshold = False
+
+        for index in range(1, 30000):
+            trail.add(first[0] + index * 0.00018, first[1])
+            if trail.sample_metres > trail.max_jump_metres:
+                if not reached_large_threshold:
+                    reached_large_threshold = True
+                    latest_stored = trail.points[-1]
+                elif trail.points[-1] != latest_stored:
+                    stored_after_large_threshold = True
+                    break
+
+        self.assertTrue(reached_large_threshold)
+        self.assertTrue(stored_after_large_threshold)
+        self.assertLessEqual(len(trail.points), trail.max_points)
+        self.assertIn("_lastFixLat", function_body(self.source, "add"))
 
     def test_scale_changes_projection_not_stored_coordinates(self):
         trail = TrailModel(self.source)
@@ -192,8 +222,10 @@ class TestRunTrail(unittest.TestCase):
 
     def test_draw_streams_segments_without_per_frame_coordinate_arrays(self):
         draw = function_body(self.source, "draw")
+        draw_pass = function_body(self.source, "drawPass")
 
         self.assertNotIn("[] as Array<Number>", draw)
+        self.assertNotIn("[] as Array<Number>", draw_pass)
         self.assertEqual(draw.count("drawPass(dc"), 2)
 
 

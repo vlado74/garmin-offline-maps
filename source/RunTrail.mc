@@ -13,19 +13,30 @@ class RunTrail {
     hidden var _lats as Array<Number>;
     hidden var _lons as Array<Number>;
     hidden var _sampleMetres;
+    hidden var _lastFixLat;
+    hidden var _lastFixLon;
 
     function initialize() {
         _lats = [] as Array<Number>;
         _lons = [] as Array<Number>;
         _sampleMetres = INITIAL_SAMPLE_METRES;
+        _lastFixLat = null;
+        _lastFixLon = null;
     }
 
     //! Add a plausible fix far enough from the latest displayed point.
     function add(lat, lon) {
         var count = _lats.size();
         if (count > 0) {
+            var jump = distance(_lastFixLat, _lastFixLon, lat, lon);
+            if (jump > MAX_JUMP_METRES) { return false; }
+            _lastFixLat = lat;
+            _lastFixLon = lon;
             var moved = distance(_lats[count - 1], _lons[count - 1], lat, lon);
-            if (moved < _sampleMetres || moved > MAX_JUMP_METRES) { return false; }
+            if (moved < _sampleMetres) { return false; }
+        } else {
+            _lastFixLat = lat;
+            _lastFixLon = lon;
         }
 
         if (count >= MAX_POINTS) { compact(); }
@@ -38,6 +49,8 @@ class RunTrail {
         _lats = [] as Array<Number>;
         _lons = [] as Array<Number>;
         _sampleMetres = INITIAL_SAMPLE_METRES;
+        _lastFixLat = null;
+        _lastFixLon = null;
     }
 
     function size() { return _lats.size(); }
