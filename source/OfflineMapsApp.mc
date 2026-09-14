@@ -53,7 +53,7 @@ class OfflineMapsApp extends Application.AppBase {
         var lon = _tracker.lon();
         _view.setPosition(lat, lon, _tracker.heading(), _tracker.hasHeading());
         if (_controller.state() == :recording) {
-            _trail.add(lat, lon);
+            _trail.add(lat, lon, _controller.distanceMetres());
             if (_laps.update(lat, lon, _controller.distanceMetres(), _controller.timerMs())) {
                 _controller.addLap();
                 _trail.markLap();

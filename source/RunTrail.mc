@@ -9,6 +9,8 @@ class RunTrail {
     const MAX_JUMP_METRES = 200.0d;
     const EARTH_RADIUS_METRES = 6371000.0d;
     const DRAW_MARGIN = 10;
+    const MAX_KM_MARKERS = 50;
+    const MAX_DRAWN_KM_MARKERS = 12;
 
     hidden var _lats as Array<Number>;
     hidden var _lons as Array<Number>;
@@ -16,6 +18,10 @@ class RunTrail {
     hidden var _lastFixLat;
     hidden var _lastFixLon;
     hidden var _lapStartIndex;
+    hidden var _kmLats as Array<Number>;
+    hidden var _kmLons as Array<Number>;
+    hidden var _kmNumbers as Array<Number>;
+    hidden var _lastDistance;
 
     function initialize() {
         _lats = [] as Array<Number>;
@@ -24,21 +30,29 @@ class RunTrail {
         _lastFixLat = null;
         _lastFixLon = null;
         _lapStartIndex = 0;
+        _kmLats = [] as Array<Number>;
+        _kmLons = [] as Array<Number>;
+        _kmNumbers = [] as Array<Number>;
+        _lastDistance = null;
     }
 
     //! Add a plausible fix far enough from the latest displayed point.
-    function add(lat, lon) {
+    function add(lat, lon, totalDistance) {
         var count = _lats.size();
         if (count > 0) {
             var jump = distance(_lastFixLat, _lastFixLon, lat, lon);
             if (jump > MAX_JUMP_METRES) { return false; }
+            recordKilometres(_lastFixLat, _lastFixLon, lat, lon,
+                             _lastDistance, totalDistance);
             _lastFixLat = lat;
             _lastFixLon = lon;
+            _lastDistance = totalDistance;
             var moved = distance(_lats[count - 1], _lons[count - 1], lat, lon);
             if (moved < _sampleMetres) { return false; }
         } else {
             _lastFixLat = lat;
             _lastFixLon = lon;
+            _lastDistance = totalDistance;
         }
 
         if (count >= MAX_POINTS) { compact(); }
@@ -54,6 +68,10 @@ class RunTrail {
         _lastFixLat = null;
         _lastFixLon = null;
         _lapStartIndex = 0;
+        _kmLats = [] as Array<Number>;
+        _kmLons = [] as Array<Number>;
+        _kmNumbers = [] as Array<Number>;
+        _lastDistance = null;
     }
 
     function size() { return _lats.size(); }
@@ -80,6 +98,54 @@ class RunTrail {
                  width, height, _lapStartIndex, _lats.size());
         drawPass(dc, 3, 0x00D7FF, centreX, centreY, zoom,
                  width, height, _lapStartIndex, _lats.size());
+        drawKilometreMarkers(dc, centreX, centreY, zoom, width, height);
+    }
+
+    //! Place every crossed whole kilometre between the surrounding GPS fixes.
+    hidden function recordKilometres(fromLat, fromLon, toLat, toLon,
+                                     fromDistance, toDistance) {
+        if (fromDistance == null || toDistance == null || toDistance <= fromDistance) {
+            return;
+        }
+        var nextKm = _kmNumbers.size() == 0
+                     ? 1 : _kmNumbers[_kmNumbers.size() - 1] + 1;
+        while (nextKm * 1000.0d <= toDistance) {
+            var fraction = (nextKm * 1000.0d - fromDistance)
+                           / (toDistance - fromDistance);
+            if (fraction < 0.0d) { fraction = 0.0d; }
+            if (fraction > 1.0d) { fraction = 1.0d; }
+            if (_kmNumbers.size() >= MAX_KM_MARKERS) {
+                _kmLats.remove(0);
+                _kmLons.remove(0);
+                _kmNumbers.remove(0);
+            }
+            _kmLats.add(fromLat + (toLat - fromLat) * fraction);
+            _kmLons.add(fromLon + (toLon - fromLon) * fraction);
+            _kmNumbers.add(nextKm);
+            nextKm += 1;
+        }
+    }
+
+    hidden function drawKilometreMarkers(dc, centreX, centreY, zoom,
+                                         width, height) {
+        var start = _kmNumbers.size() - MAX_DRAWN_KM_MARKERS;
+        if (start < 0) { start = 0; }
+        for (var i = start; i < _kmNumbers.size(); i += 1) {
+            var x = width / 2.0d + Mercator.lonToWorldX(_kmLons[i], zoom) - centreX;
+            var y = height / 2.0d + Mercator.latToWorldY(_kmLats[i], zoom) - centreY;
+            if (x < -12 || x > width + 12 || y < -12 || y > height + 12) {
+                continue;
+            }
+            var px = x.toNumber();
+            var py = y.toNumber();
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(px, py, 10);
+            dc.setColor(0xFFFF00, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(px, py, 8);
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(px, py - 7, Graphics.FONT_XTINY,
+                        _kmNumbers[i].format("%d"), Graphics.TEXT_JUSTIFY_CENTER);
+        }
     }
 
     //! Equirectangular distance on a spherical earth; accurate at trail scale.
