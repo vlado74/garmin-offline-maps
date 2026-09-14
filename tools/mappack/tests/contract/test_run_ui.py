@@ -29,7 +29,8 @@ class TestRunUi(unittest.TestCase):
         self.assertRegex(delegate, r"KEY_ENTER[\s\S]*?_controller\.toggle\(\)")
         self.assertRegex(delegate, r"KEY_UP[\s\S]*?_view\.zoomIn\(\)")
         self.assertRegex(delegate, r"KEY_DOWN[\s\S]*?_view\.zoomOut\(\)")
-        self.assertRegex(delegate, r"KEY_MENU[\s\S]*?_view\.toggleLapDetails\(\)")
+        self.assertRegex(delegate, r"KEY_MENU[\s\S]*?new RunSettingsMenu")
+        self.assertRegex(delegate, r"KEY_MENU[\s\S]*?new RunSettingsMenuDelegate")
         self.assertNotIn("function onMenu()", delegate)
         self.assertNotIn("KEY_LIGHT", delegate)
         self.assertRegex(delegate, r"KEY_ESC[\s\S]*?_controller\.hasSession\(\)")
@@ -162,6 +163,19 @@ class TestRunUi(unittest.TestCase):
         self.assertIn("AppSettings.autoLapDetails()", view)
         self.assertIn("AppSettings.lapDetailDurationMs()", view)
         self.assertRegex(view, r"if \(_showTouchButtons\)[\s\S]*?drawLapButton")
+
+    def test_watch_settings_menu_persists_every_option(self):
+        menu = source("RunSettingsMenu.mc")
+        self.assertIn("class RunSettingsMenu extends WatchUi.Menu2", menu)
+        self.assertIn("class RunSettingsMenuDelegate extends WatchUi.Menu2InputDelegate", menu)
+        for setting in (
+            "ShowTouchButtons", "ShowStreetLabels", "MarkerMode",
+            "DetailTextColor", "DetailBackgroundColor",
+            "AutoLapDetails", "LapDetailSeconds",
+        ):
+            self.assertIn(f'AppSettings.setValue("{setting}"', menu)
+        self.assertIn("_view.reloadSettings()", menu)
+        self.assertIn("WatchUi.popView", menu)
 
     def test_manifest_targets_only_fr265s_with_both_languages(self):
         manifest = ET.parse(ROOT / "manifest.xml").getroot()

@@ -60,7 +60,8 @@ class RunDelegate extends WatchUi.InputDelegate {
             return true;
         }
         if (key == WatchUi.KEY_MENU) {
-            _view.toggleLapDetails();
+            WatchUi.pushView(new RunSettingsMenu(),
+                new RunSettingsMenuDelegate(_view), WatchUi.SLIDE_UP);
             return true;
         }
         if (key == WatchUi.KEY_ESC && _controller.hasSession()) {

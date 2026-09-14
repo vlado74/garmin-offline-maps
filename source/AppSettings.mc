@@ -7,6 +7,10 @@ module AppSettings {
         return stored == null ? fallback : stored;
     }
 
+    function setValue(key, settingValue) {
+        Application.Properties.setValue(key, settingValue);
+    }
+
     function showTouchButtons() { return value("ShowTouchButtons", true); }
     function showStreetLabels() { return value("ShowStreetLabels", true); }
     function markerMode() { return value("MarkerMode", MarkerMode.ALL); }

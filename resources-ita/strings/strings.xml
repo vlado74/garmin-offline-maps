@@ -15,7 +15,6 @@
     <string id="LapDistance">Distanza</string>
     <string id="LapPace">Passo</string>
     <string id="LapButton">G</string>
-    <string id="RunDetails">Dettagli corsa</string>
     <string id="TotalTime">Tempo</string>
     <string id="TotalDistance">Distanza</string>
     <string id="AveragePace">Passo medio</string>
@@ -35,4 +34,7 @@
     <string id="ColorBlack">Nero</string>
     <string id="ColorDarkBlue">Blu scuro</string>
     <string id="ColorDarkGray">Grigio scuro</string>
+    <string id="SettingsTitle">Impostazioni</string>
+    <string id="Enabled">Sì</string>
+    <string id="Disabled">No</string>
 </resources>

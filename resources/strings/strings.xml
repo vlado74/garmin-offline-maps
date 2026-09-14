@@ -15,7 +15,6 @@
     <string id="LapDistance">Distance</string>
     <string id="LapPace">Pace</string>
     <string id="LapButton">L</string>
-    <string id="RunDetails">Run details</string>
     <string id="TotalTime">Time</string>
     <string id="TotalDistance">Distance</string>
     <string id="AveragePace">Average pace</string>
@@ -35,4 +34,7 @@
     <string id="ColorBlack">Black</string>
     <string id="ColorDarkBlue">Dark blue</string>
     <string id="ColorDarkGray">Dark gray</string>
+    <string id="SettingsTitle">Settings</string>
+    <string id="Enabled">On</string>
+    <string id="Disabled">Off</string>
 </resources>
