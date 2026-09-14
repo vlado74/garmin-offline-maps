@@ -19,4 +19,20 @@
     <string id="TotalTime">Tempo</string>
     <string id="TotalDistance">Distanza</string>
     <string id="AveragePace">Passo medio</string>
+    <string id="SettingTouchButtons">Mostra pulsanti touch</string>
+    <string id="SettingStreetLabels">Mostra nomi vie</string>
+    <string id="SettingMarkers">Marcatori distanza</string>
+    <string id="SettingTextColor">Colore testo dettagli</string>
+    <string id="SettingBackgroundColor">Sfondo dettagli</string>
+    <string id="SettingAutoLapDetails">Dettagli dopo il giro</string>
+    <string id="SettingDetailDuration">Durata dettagli automatici</string>
+    <string id="MarkersAll">500 m e km</string>
+    <string id="MarkersKm">Solo chilometri</string>
+    <string id="MarkersHidden">Nascosti</string>
+    <string id="ColorWhite">Bianco</string>
+    <string id="ColorYellow">Giallo</string>
+    <string id="ColorCyan">Azzurro</string>
+    <string id="ColorBlack">Nero</string>
+    <string id="ColorDarkBlue">Blu scuro</string>
+    <string id="ColorDarkGray">Grigio scuro</string>
 </resources>

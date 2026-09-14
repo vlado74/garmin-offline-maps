@@ -1,0 +1,40 @@
+<settings>
+    <setting propertyKey="@Properties.ShowTouchButtons" title="@Strings.SettingTouchButtons">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.ShowStreetLabels" title="@Strings.SettingStreetLabels">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.MarkerMode" title="@Strings.SettingMarkers">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.MarkersAll</listEntry>
+            <listEntry value="1">@Strings.MarkersKm</listEntry>
+            <listEntry value="2">@Strings.MarkersHidden</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.DetailTextColor" title="@Strings.SettingTextColor">
+        <settingConfig type="list">
+            <listEntry value="0xFFFFFF">@Strings.ColorWhite</listEntry>
+            <listEntry value="0xFFFF00">@Strings.ColorYellow</listEntry>
+            <listEntry value="0x00D7FF">@Strings.ColorCyan</listEntry>
+            <listEntry value="0x000000">@Strings.ColorBlack</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.DetailBackgroundColor" title="@Strings.SettingBackgroundColor">
+        <settingConfig type="list">
+            <listEntry value="0x000000">@Strings.ColorBlack</listEntry>
+            <listEntry value="0x001F4D">@Strings.ColorDarkBlue</listEntry>
+            <listEntry value="0x555555">@Strings.ColorDarkGray</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.AutoLapDetails" title="@Strings.SettingAutoLapDetails">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.LapDetailSeconds" title="@Strings.SettingDetailDuration">
+        <settingConfig type="list">
+            <listEntry value="4">4 s</listEntry>
+            <listEntry value="8">8 s</listEntry>
+            <listEntry value="12">12 s</listEntry>
+        </settingConfig>
+    </setting>
+</settings>

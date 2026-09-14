@@ -8,7 +8,6 @@ class RunMapView extends WatchUi.View {
     const LABEL_BUTTON_OFFSET = 68;
     const LABEL_BUTTON_RADIUS = 22;
     const LABEL_BUTTON_HIT_RADIUS = 28;
-    const LAP_DETAIL_VISIBLE_MS = 8000;
     const MARKER_BUTTON_X = 68;
     const MARKER_BUTTON_Y = 68;
 
@@ -32,6 +31,11 @@ class RunMapView extends WatchUi.View {
     hidden var _showLapDetails;
     hidden var _lapDetailsHideAt;
     hidden var _markerMode;
+    hidden var _showTouchButtons;
+    hidden var _detailTextColor;
+    hidden var _detailBackgroundColor;
+    hidden var _autoLapDetails;
+    hidden var _lapDetailDurationMs;
 
     function initialize(store, trail, controller, laps) {
         View.initialize();
@@ -54,7 +58,18 @@ class RunMapView extends WatchUi.View {
         _showStreetLabels = true;
         _showLapDetails = false;
         _lapDetailsHideAt = null;
-        _markerMode = MarkerMode.ALL;
+        reloadSettings();
+    }
+
+    function reloadSettings() {
+        _showTouchButtons = AppSettings.showTouchButtons();
+        _showStreetLabels = AppSettings.showStreetLabels();
+        _markerMode = AppSettings.markerMode();
+        _detailTextColor = AppSettings.detailTextColor();
+        _detailBackgroundColor = AppSettings.detailBackgroundColor();
+        _autoLapDetails = AppSettings.autoLapDetails();
+        _lapDetailDurationMs = AppSettings.lapDetailDurationMs();
+        WatchUi.requestUpdate();
     }
 
     function onLayout(dc) {
@@ -160,14 +175,16 @@ class RunMapView extends WatchUi.View {
     }
 
     function showCompletedLap() {
+        if (!_autoLapDetails) { return; }
         _showLapDetails = true;
-        _lapDetailsHideAt = System.getTimer() + LAP_DETAIL_VISIBLE_MS;
+        _lapDetailsHideAt = System.getTimer() + _lapDetailDurationMs;
         WatchUi.requestUpdate();
     }
 
     //! Consume taps on the label control; all other taps keep
     //! their existing GPS-recentre behavior in RunDelegate.
     function handleTap(x, y) {
+        if (!_showTouchButtons) { return false; }
         var lapButtonX = LABEL_BUTTON_OFFSET;
         var buttonY = _height - LABEL_BUTTON_OFFSET;
         var lapDx = x - lapButtonX;
@@ -219,9 +236,11 @@ class RunMapView extends WatchUi.View {
         if (!_followingGps && _gpsReady) { drawRecenterHint(dc); }
         drawStatus(dc);
         if (_showLapDetails) { drawLapDetails(dc); }
-        drawLapButton(dc);
-        drawMarkerModeButton(dc);
-        drawStreetLabelButton(dc);
+        if (_showTouchButtons) {
+            drawLapButton(dc);
+            drawMarkerModeButton(dc);
+            drawStreetLabelButton(dc);
+        }
     }
 
     hidden function drawMarkerModeButton(dc) {
@@ -292,9 +311,9 @@ class RunMapView extends WatchUi.View {
         var panelX = 30;
         var panelY = 30;
         var panelWidth = _width - 60;
-        dc.setColor(RunStyle.BAND, RunStyle.BAND);
+        dc.setColor(_detailBackgroundColor, _detailBackgroundColor);
         dc.fillRectangle(panelX, panelY, panelWidth, 252);
-        dc.setColor(RunStyle.BAND_TEXT, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(_detailTextColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(_width / 2, panelY + 10, Graphics.FONT_SMALL,
                     WatchUi.loadResource(Rez.Strings.RunDetails),
                     Graphics.TEXT_JUSTIFY_CENTER);

@@ -139,6 +139,30 @@ class TestRunUi(unittest.TestCase):
         self.assertEqual("Ricerca GPS", italian["WaitingForGps"])
         self.assertEqual("Tocca per GPS", italian["TapToRecenter"])
 
+    def test_native_app_settings_control_the_runtime_ui(self):
+        properties = ET.parse(ROOT / "resources/properties.xml").getroot()
+        property_ids = {node.attrib["id"] for node in properties.findall(".//property")}
+        self.assertEqual({
+            "ShowTouchButtons", "ShowStreetLabels", "MarkerMode",
+            "DetailTextColor", "DetailBackgroundColor",
+            "AutoLapDetails", "LapDetailSeconds",
+        }, property_ids)
+        settings = ET.parse(ROOT / "resources/settings/settings.xml").getroot()
+        self.assertEqual(7, len(settings.findall("setting")))
+        app = source("OfflineMapsApp.mc")
+        view = source("RunMapView.mc")
+        self.assertIn("function onSettingsChanged()", app)
+        self.assertIn("_view.reloadSettings()", app)
+        self.assertIn("function reloadSettings()", view)
+        self.assertIn("AppSettings.showTouchButtons()", view)
+        self.assertIn("AppSettings.showStreetLabels()", view)
+        self.assertIn("AppSettings.markerMode()", view)
+        self.assertIn("AppSettings.detailTextColor()", view)
+        self.assertIn("AppSettings.detailBackgroundColor()", view)
+        self.assertIn("AppSettings.autoLapDetails()", view)
+        self.assertIn("AppSettings.lapDetailDurationMs()", view)
+        self.assertRegex(view, r"if \(_showTouchButtons\)[\s\S]*?drawLapButton")
+
     def test_manifest_targets_only_fr265s_with_both_languages(self):
         manifest = ET.parse(ROOT / "manifest.xml").getroot()
         ns = {"iq": "http://www.garmin.com/xml/connectiq"}

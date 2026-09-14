@@ -42,6 +42,10 @@ class OfflineMapsApp extends Application.AppBase {
         }
     }
 
+    function onSettingsChanged() as Void {
+        if (_view != null) { _view.reloadSettings(); }
+    }
+
     function onFix() {
         if (_tracker == null || _controller == null) { return; }
         var usable = _tracker.hasUsableFix();

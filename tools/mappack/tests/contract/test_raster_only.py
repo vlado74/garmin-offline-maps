@@ -34,7 +34,6 @@ class TestRasterOnlyRuntime(unittest.TestCase):
             node.attrib["id"] for node in root.findall(".//iq:uses-permission", ns)
         }
         self.assertEqual({"Positioning", "Fit"}, permissions)
-        self.assertFalse((ROOT / "resources/settings").exists())
 
     def test_makefile_defaults_to_fr265s_and_raster_commands(self):
         makefile = (ROOT / "Makefile").read_text(encoding="utf-8")

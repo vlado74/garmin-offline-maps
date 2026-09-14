@@ -1,0 +1,11 @@
+<resources>
+    <properties>
+        <property id="ShowTouchButtons" type="boolean">true</property>
+        <property id="ShowStreetLabels" type="boolean">true</property>
+        <property id="MarkerMode" type="number">0</property>
+        <property id="DetailTextColor" type="number">0xFFFFFF</property>
+        <property id="DetailBackgroundColor" type="number">0x000000</property>
+        <property id="AutoLapDetails" type="boolean">true</property>
+        <property id="LapDetailSeconds" type="number">8</property>
+    </properties>
+</resources>
